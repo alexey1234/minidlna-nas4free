@@ -1,0 +1,61 @@
+#!/bin/sh
+#
+# $FreeBSD: tags/RELEASE_9_1_0/www/lighttpd/files/lighttpd.in 302141 2012-08-05 23:19:36Z dougb $
+#
+# PROVIDE: web_dlna
+# REQUIRE: DAEMON
+# KEYWORD: shutdown
+#
+
+
+. /etc/rc.subr
+. /etc/util.subr
+. /etc/configxml.subr
+
+#Need read xml for pathes
+homefolder=`configxml_get "//minidlna/homefolder"`
+web_dlna_conf=${homefolder}web/webserver.conf
+
+name="web_dlna"
+
+
+# Custom commands
+stop_postcmd="web_dlna_poststop"
+restart_precmd="web_dlna_check"
+reload_precmd="web_dlna_prereload"
+reload_postcmd="web_dlna_postreload"
+check_cmd="web_dlna_check"
+extra_commands="reload check"
+
+# Defaults
+web_dlna_conf=${web_dlna_conf}
+pidfile="/var/run/web_dlna.pid"
+command=/usr/local/sbin/lighttpd
+command_args="-f ${web_dlna_conf} -m /usr/local/lib/lighttpd"
+sig_reload="-INT"
+
+
+web_dlna_check()
+{
+	echo "Performing sanity check on ${name} configuration:"
+	eval "${command} ${command_args} -t"
+}
+
+web_dlna_poststop()
+{
+	rm -f ${pidfile}
+}
+
+web_dlna_prereload()
+{
+	echo "Stopping ${name} and starting gracefully."
+}
+
+
+web_dlna_postreload()
+{
+	rm -f ${pidfile}
+	run_rc_command start
+}
+
+run_rc_command "$1"
