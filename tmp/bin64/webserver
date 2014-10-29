@@ -14,7 +14,8 @@
 
 #Need read xml for pathes
 homefolder=`configxml_get "//minidlna/homefolder"`
-web_dlna_conf=${homefolder}web/webserver.conf
+#web_dlna_conf=${homefolder}web/webserver.conf
+web_dlna_conf='/var/etc/web_dlna.conf'
 
 name="web_dlna"
 

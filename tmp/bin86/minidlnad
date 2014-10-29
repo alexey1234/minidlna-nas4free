@@ -1,28 +1,139 @@
 #!/bin/sh
 
-# $FreeBSD: tags/RELEASE_9_1_0/net/minidlna/files/minidlna.in 302141 2012-08-05 23:19:36Z dougb $
+# $FreeBSD: tags/RELEASE_9_2_0/net/minidlna/files/minidlna.in 302141 2012-08-05 23:19:36Z dougb $
 #
 # PROVIDE: minidlna
 # REQUIRE: LOGIN
 # KEYWORD: shutdown
-#
+# XQUERY: -i "string-length(//upnp/server_t) > 7" -o "0" -b
+# RCVAR: minidlna
 
 . /etc/rc.subr
 . /etc/configxml.subr
+. /etc/util.subr
 
 name=minidlna
-homefolder=`configxml_get "//$name/homefolder"`
+rcvar=${name}_enable
+load_rc_config "${name}"
 
-config=${homefolder}${name}\.conf
+# Defaults
+minidlna_enable=${minidlna_enable:="NO"}
+homefolder=`configxml_get "//${name}/homefolder"`
+webview=`configxml_get_count "//minidlna/webview"`
+scanmedia=`configxml_get_count "//minidlna/autorescan"`
+#minidlna_types=".*\.(jpg|mpg|mpeg|avi|divx|asf|wmv|mp4|m4v|mts|m2ts|m2t|mkv|vob|ts|flv|xvid|TiVo|mov|3gp|mp3|flac|wma|asf|fla|flc|m4a|aac|mp4|m4p|wav|ogg|pcm|3gp)"
+#notify_db_file=${homefolder}db/notify.db
+minidlna_config_dir="/var/etc"
+customconfigenable=`configxml_get_count "//upnp/extconfig"`
+path2custom=`configxml_get "//upnp/extconfigpath"`
+#_db_dir=`configxml_get "//upnp/home"`
+
+if [ ${customconfigenable} = "1" ]; then
+	    minidlna_config=${path2custom}
+	else
+	    minidlna_config=${minidlna_config_dir}/${name}.conf
+fi
+
+#Commands 
 command=/usr/local/sbin/$name
-pidfile="/var/run/$name\.pid"
+mkconf_cmd="minidlna_mkconf"
+start_precmd="minidlna_mkconf"
+start_postcmd="minidlna_poststart"
+stop_precmd="minidlna_prestop"
+#inotify_cmd="minidlna_poststart"
+#inotifydb_cmd="minidlna_createdb"
+rescan_cmd="minidlna_rescan"
+grescan_cmd="minidlna_grescan"
+extra_commands="mkconf rescan grescan reload"
+#checknew_cmd="minidlna_checknew"
 
-start_precmd="rm -f $pidfile"
-stop_postcmd=$start_precmd
-
-command_args="-P $pidfile -f $config"
-extra_commands=rescan
-rescan_cmd="$command -R "
 
 
+pidfile="/var/run/$name.pid"
+command_args=" -P $pidfile -f $minidlna_config"
+
+minidlna_mkconf()
+{
+
+		_name=`configxml_get "//upnp/name"`
+		_if=`configxml_get "//upnp/if"`
+		_port=`configxml_get "//upnp/port"`
+		_serial=`minidlna -V | awk '{print$2}'`
+		_model=`cat /etc/prd.revision`
+		_notifyinterval=`configxml_get "//upnp/notify_int"`
+		_loglevel=`configxml_get "//upnp/loglevel"`
+#		_sleeptime=`configxml_get "//upnp/notifyint"`	
+		
+		_ip_adress=`configxml_get "//interfaces/lan/ipaddr"`
+		_ip_adress=`configxml_get "//interfaces/lan/ipaddr"`
+		if [ "${_ip_adress}" = "dhcp" ]; then
+			_ip_adress=`get_ipaddr inet ${_if}`
+		fi
+		
+if [ ${customconfigenable} = "0" ]; then
+	cat << EOF > ${minidlna_config}
+friendly_name=${_name}
+network_interface=${_if}
+port=${_port}
+serial=${_serial}
+model_number=${_model}
+notify_interval=${_notifyinterval}
+db_dir=${homefolder}db
+log_dir=${homefolder}
+log_level=general,artwork,database,inotify,scanner,metadata,http,ssdp,tivo=${_loglevel}
+album_art_names=Cover.jpg/cover.jpg/AlbumArtSmall.jpg/albumartsmall.jpg/AlbumArt.jpg/albumart.jpg/Album.jpg/album.jpg/Folder.jpg/folder.jpg/Thumb.jpg/thumb.jpg
+inotify=no
+minissdpdsocket=/var/run/minissdpd.sock
+root_container=B
+presentation_url=http://${_ip_adress}:${_port}/index.php
+EOF
+
+	xml sel -t \
+		-i "count(//upnp/tivo) > 0" -o "enable_tivo=yes" --else -o "enable_tivo=no" -b -n \
+		      ${configxml_file} | /usr/local/bin/xml unesc >> ${minidlna_config}
+	xml sel -t \
+		-i "count(//upnp/strict) > 0" -o "strict_dlna=yes" --else -o "strict_dlna=no" -b -n \
+		      ${configxml_file} | /usr/local/bin/xml unesc >> ${minidlna_config}
+	/usr/local/bin/xml sel -t -m "//upnp/content" \
+		-o "media_dir=" -v "." -n \
+		      ${configxml_file} | /usr/local/bin/xml unesc >> ${minidlna_config}
+fi
+}
+
+minidlna_rescan()
+{
+#/etc/rc.d/minidlna stop > /dev/null
+$command  -f $minidlna_config -R
+logger rescan minidlna begin
+}
+
+minidlna_grescan()
+{
+/etc/rc.d/minidlna stop > /dev/null
+#echo "Stoped. Delete DB"
+rm -f ${homefolder}db/files.db
+#echo "Clear"
+$command  $command_args
+logger grescan minidlna
+}
+minidlna_poststart() {
+	if [ ${webview} = 1 ]; then 
+		cp -f ${homefolder}web/webserver.conf /var/etc/web_dlna.conf
+		${homefolder}bin/webserver start
+	fi
+
+	if [ $scanmedia = "1" ]; then
+		${homefolder}bin/scanner.sh start scanmedia
+	fi
+}
+minidlna_prestop() {
+	if [ ${webview} = 1 ]; then 
+		if [ -f "/var/run/web_dlna.pid" ]; then
+			${homefolder}bin/webserver stop
+		fi
+	fi
+	if [ $scanmedia = "1" ]; then
+		${homefolder}bin/scanner.sh stop scanmedia
+	fi
+}
 run_rc_command $1

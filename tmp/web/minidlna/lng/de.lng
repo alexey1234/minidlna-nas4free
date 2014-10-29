@@ -1,0 +1,14 @@
+<?php
+$mlng['lang']     = 'Sprache';
+$mlng['head']     = 'MINI DLNA - Weboberfl&auml;che';
+$mlng['title']    = 'MINIDLNA-Viewer';
+$mlng['db']       = 'SQLite3 Datenbank';
+$mlng['style']    = 'Aussehen';
+$mlng['search']   = 'Suchen';
+$mlng['search_c'] = 'Alle';
+$mlng['sort']     = 'Sortieren';
+$mlng['sort_c']   = 'Pfad';
+$mlng['artist']   = 'Artist';
+$mlng['genre']    = 'Genre';
+$mlng['download'] = 'Datei herunterladen';
+?>
