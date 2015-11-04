@@ -3,6 +3,7 @@
 extensions_minidlna_config.php
 */
 ob_start();
+define (MINIDLNA_VERSION,1);
 require("auth.inc");
 require("guiconfig.inc");
 require("services.inc");
