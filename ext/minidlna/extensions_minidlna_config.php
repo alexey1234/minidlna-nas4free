@@ -2,11 +2,9 @@
 /*
 extensions_minidlna_config.php
 */
-ob_start();
 define (MINIDLNA_VERSION,1);
 require("auth.inc");
 require("guiconfig.inc");
-require("services.inc");
 require("ext/minidlna/function.php");
 
 $a_interface = get_interface_list();
@@ -24,11 +22,79 @@ if (true == is_file("/tmp/minidlna.install") ) {
 	} else {
 	$pconfig['homefolder'] = $config['minidlna']['homefolder'];
 	}
+if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
+	
+			if (!empty($config['minidlna']['homefolder'])) {
+						$input_errors[] = "Extension configured, no need push on button!";
+						goto out;
+					}
+			if (empty($_POST['homefolder'])) {
+					$input_errors[] = "Homefolder must be defined";
+					goto out;
+					
+					}	
+			$config['minidlna']['homefolder'] = $_POST['homefolder'];
+			write_config();
+			if (is_file ("/tmp/minidlna.install")) { unlink ("/tmp/minidlna.install"); }
+			header("Location: extensions_minidlna_config.php");
+						exit;
+}	elseif (isset($_POST['submit1']) && ($_POST['submit1'] == "Uninstall")) {
+
+		//uninstall procedure
+			 rc_stop_service('minidlna');
+	
+		if ( is_array($config['rc']['postinit'] ) && is_array( $config['rc']['postinit']['cmd'] ) ) {
+			for ($i = 0; $i < count($config['rc']['postinit']['cmd']);) {
+				if (preg_match('/minidlna/', $config['rc']['postinit']['cmd'][$i])) {	unset($config['rc']['postinit']['cmd'][$i]);} else{}
+				++$i;
+			  }
+		    }
+		
+		if ( is_array($config['cron'] ) && is_array( $config['cron']['job'] )) {
+			 $index = array_search_ex("minidlna", $config['cron']['job'], "desc");
+			 if (false !== $index) { unset($config['cron']['job'][$index]); }
+		    }
+
+		if ( is_link ( "/etc/rc.d/minidlna") ) { 	unlink("/etc/rc.d/minidlna"); }
+
+//remowe web pages
+		if (is_dir ("/usr/local/www/ext/minidlna")) {
+		      foreach ( glob( $config['minidlna']['homefolder']."/ext/minidlna/*.php" ) as $file ) {
+		      $file = str_replace($config['minidlna']['homefolder']."/ext/minidlna", "/usr/local/www", $file);
+		      if ( is_link( $file ) ) { unlink( $file ); } else {}	}
+		      mwexec ("rm -rf /usr/local/www/ext/minidlna");
+		      if ( is_link( "/usr/local/www/clear.png" ) ) { unlink(  "/usr/local/www/clear.png" );}
+		    }
+	    
+//remove minidlna section from config.xml
+		if ( is_array($config['minidlna'] ) ) { unset( $config['minidlna'] ); write_config();}
+		header("Location: /");
+		exit;
+		} else {
+unlink_if_exists ("/tmp/extensions_minidlna_config.php");
+$connected = @fsockopen("www.github.com", 80); 
+if ( $connected ) {
+	fclose($connected);
+	$gitconfigfile = file_get_contents("https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/master/ext/minidlna/extensions_minidlna_config.php");
+	$git_ver = preg_split ( "/MINIDLNA_VERSION,/", $gitconfigfile);
+	$git_ver = 0 + $git_ver[1];
+	mwexec2 ( "fetch {$fetch_args} -o /tmp/minidlna_install.sh https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/master/install.php" , $garbage , $fetch_ret_val ) ;
+				if ( is_file("/tmp/minidlna_install.sh" ) ) {
+					// Fetch of install.sh succeeded
+					mwexec ("chmod a+x /tmp/thebrig_install.sh");
+				}	
+				else {					
+					$input_errors[]="There seems to be a networking issue. I can't reach GitHub to retrieve the file. <br />Please check <a href='/system.php'>DNS</a> and other <a href='/interfaces_lan.php'>networking settings</a>. <br />Alternatively, try it again to see if there was some transient network problem.";
+				}  // end of failed install.sh fetch	
+			
+		} // end of successful internet connectivity test
+	
+	
 if (is_ajax()) {
 	$upnpinfo = system_get_upnpinfo();
 	render_ajax($upnpinfo);
 }
-
+}
 function system_get_upnpinfo() {
 	global $config;
 	$tabledata = array();
@@ -44,11 +110,9 @@ function system_get_upnpinfo() {
 					 $tabledata['pidstatus'] = exec ("ps ax | grep minidlna | grep -v grep | awk '{print$1}'");
 					} 
 				}
-			
-			//$tabledata['pidstatus'] = exec ("ps ax | grep minidlna | grep -v grep | awk '{print$1}'");
-
 	return $tabledata;
 }
+out:
 ?>
 <?php include("fbegin.inc"); ?>
 <script type="text/javascript">//<![CDATA[
@@ -148,7 +212,7 @@ $(document).ready(function(){
 		<table width="100%" border="0" cellpadding="6" cellspacing="0">
 		<?php 
 			html_titleline(gettext("Update Availability")); 
-			html_text($confconv, gettext("Current Status"),"The latest version on GitHub is: " . $git_ver . "<br /><br />Your version is: " . $brig_ver ); 
+			html_text($confconv, gettext("Current Status"),"The latest version on GitHub is: " . $git_ver . "<br /><br />Your version is: " . MINIDLNA_VERSION ); 
 			?> 
 			<tr>
 			
@@ -156,9 +220,9 @@ $(document).ready(function(){
 			<td width="78%" class="vtable">
 			<?=gettext("Click below to download and install the latest version.");?><br />
 				<div id="submit_x">
-					<input id="thebrig_update" name="thebrig_update" type="submit" class="formbtn" value="<?=_THEBRIG_UPDATE_BUTTON;?>" onClick="return confirm('<?=_THEBRIG_INFO_MGR;?>');" /><br />
+					<input id="minidlna_update" name="minidlna_update" type="submit" class="formbtn" value="Update" onClick="return confirm('<?=_THEBRIG_INFO_MGR;?>');" /><br />
 				</div>
-				<input name="txtCommand" type="hidden" value="<?="sh /tmp/thebrig_install.sh {$config['thebrig']['rootfolder']} 3";?>" />
+				<input name="txtCommand" type="hidden" value="<?="sh /tmp/minidlna_install.sh {$config['minidlna']['homefolder']}";?>" />
 			</td>
 			
 

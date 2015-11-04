@@ -31,7 +31,7 @@ stop_postcmd="minidlna_poststop"
 rescan_cmd="minidlna_rescan"
 extra_commands="mkconf rescan"
 
-pidfile="/var/run/${name}/${name}\.pid"
+pidfile="/var/run/${name}/${name}.pid"
 command_args=" -P $pidfile -u $minidlna_uid -f $minidlna_config"
 
 minidlna_mkconf()
@@ -87,41 +87,32 @@ install -d -o $minidlna_uid ${pidfile%/*} /var/db/minidlna
 
 minidlna_rescan()
 {
-minidlna_prestop
-minidlna_poststop
 PID=`cat $pidfile`
 kill $PID
-sleep 2
-#echo "Stoped. Delete DB"
+minidlna_poststop
+rm -f $pidfile
 if [ -f ${homefolder}/db/files.db ]; then
       rm -f ${homefolder}/db/files.db
 fi
 if [ -d ${homefolder}/db/art_cache ]; then
       rm -fr ${homefolder}/db/art_cache
 fi
-
-logger echo "Clear"
-sleep 2
 $command $command_args
-logger grescan minidlna
+logger "rescan minidlna"
 sleep 5
-${homefolder}bin/wait_on -t 1800 $scanner_indicator
+wait_on -t 1800 $scanner_indicator
 case $? in
 		0)
-		    logger minidlna rescan timeout
+		    logger "minidlna rescan timeout"
 		    ;;
 		1)
-		    logger minidlna rescan completed
-		    sleep 15
-		    echo clean wrong daemons
-		    sleep 15
-		     process=`ps ax | grep sbin/minidlna | grep -v grep | awk '{print$1}'`
-		    echo ${process}
-			kill -s KILL ${process}
+		    logger "minidlna rescan completed"
+		    sleep 5
+		    #clean wrong daemons		    
+		    process=`ps ax | grep sbin/minidlna | grep -v grep | awk '{print$1}'`
+		    kill -s KILL ${process}
 		    minidlna_prestart
-		    $command $command_args
-		    echo all restarted
-		    minidlna_poststart
+		    $command $command_args		   
 		    ;;
 esac
 }
