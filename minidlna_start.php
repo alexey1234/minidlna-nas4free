@@ -13,6 +13,8 @@ if ( !is_link ( "/usr/local/www/extensions_minidlna_log.php")) {  symlink ( $con
 if ( !is_link ( "/usr/local/www/extensions_minidlna_config.php")) { symlink ( $config['minidlna']['homefolder']."/ext/minidlna/extensions_minidlna_config.php" , "/usr/local/www/extensions_minidlna_config.php" );}
 if ( !is_link ( "/usr/local/www/system_cron_edit1.php")) {  symlink ( $config['minidlna']['homefolder']."/ext/minidlna/system_cron_edit1.php" , "/usr/local/www/system_cron_edit1.php" );}
 if ( !is_link ( "/usr/local/www/system_cron1.php")) { symlink ( $config['minidlna']['homefolder']."/ext/minidlna/system_cron1.php" , "/usr/local/www/system_cron1.php" );}
+if ( !is_link ( "/usr/local/www/status_scan.png")) { symlink ( $config['minidlna']['homefolder']."/ext/minidlna/status_scan.png" , "/usr/local/www/status_scan.png" );}
+
 if ( !is_link ( "/etc/rc.d/minidlna") || !is_file ( "/etc/rc.d/minidlna")) { symlink ( $config['minidlna']['homefolder']."/ext/minidlna.sh" , "/etc/rc.d/minidlna" );}
 if (isset($config['minidlna']['enable'])) {
 rc_update_rcconf("minidlna", "enable"); 

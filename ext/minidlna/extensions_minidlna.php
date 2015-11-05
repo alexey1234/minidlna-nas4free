@@ -8,6 +8,7 @@ require("guiconfig.inc");
 require("services.inc");
 require("ext/minidlna/function.php");
 
+if (is_file("/tmp/minidlna.install")) header("Location: extensions_minidlna_config.php");
 $a_interface = get_interface_list();
 
 // Use first interface as default if it is not set.

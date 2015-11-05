@@ -26,6 +26,7 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 	
 			if (!empty($config['minidlna']['homefolder'])) {
 						$input_errors[] = "Extension configured, no need push on button!";
+						unlink_if_exists("/tmp/minidlna.install");
 						goto out;
 					}
 			if (empty($_POST['homefolder'])) {
@@ -35,7 +36,7 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 					}	
 			$config['minidlna']['homefolder'] = $_POST['homefolder'];
 			write_config();
-			if (is_file ("/tmp/minidlna.install")) { unlink ("/tmp/minidlna.install"); }
+			unlink_if_exists("/tmp/minidlna.install");
 			header("Location: extensions_minidlna_config.php");
 						exit;
 }	elseif (isset($_POST['submit1']) && ($_POST['submit1'] == "Uninstall")) {
@@ -95,23 +96,7 @@ if (is_ajax()) {
 	render_ajax($upnpinfo);
 }
 }
-function system_get_upnpinfo() {
-	global $config;
-	$tabledata = array();
-	$tabledata['server'] = "minidlna";
-	$tabledata['version'] = exec ("minidlnad -V | awk '{print$2}'");
-			$upnpip = get_ipaddr($config['upnp']['if']);
-			if (is_file("/var/run/minidlna/upnp-av.scan") ) { $tabledata['pidstatus'] = 1; } else {
-			$presurl = "http://".$upnpip.":".$config['upnp']['port'];
-			$file_headers = @get_headers($presurl);
-			if($file_headers[0] == 'HTTP/1.1 404 Not Found') {
-				$tabledata['pidstatus'] = false;
-				} else {
-					 $tabledata['pidstatus'] = exec ("ps ax | grep minidlna | grep -v grep | awk '{print$1}'");
-					} 
-				}
-	return $tabledata;
-}
+
 out:
 ?>
 <?php include("fbegin.inc"); ?>
@@ -178,7 +163,7 @@ $(document).ready(function(){
 						 <tr id="resultview">
 							<td  class="listr" name="server"  id="server"></td>
 							<td  class="listr" name="version" id="version"></td>
-							<td  class="listr" name="pidstatus" id="pidstatus"><img id="pidstatusimg" src="status_disabled.png" border="0" alt="Stopped" /></td>
+							<td  class="listr" name="pidstatus" id="pidstatus"><img id="pidstatusimg" src="status_disabled.png" border="0" /></td>
 						</tr>
 						</table>
 					</td>	

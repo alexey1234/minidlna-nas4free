@@ -176,5 +176,21 @@ function html_minidlnabox($ctrlname, $title, $value, $desc, $path, $required = f
 	$ctrl->SetPath($path);
 	$ctrl->Render();
 }
-
+function system_get_upnpinfo() {
+	global $config;
+	$tabledata = array();
+	$tabledata['server'] = "minidlna";
+	$tabledata['version'] = exec ("minidlnad -V | awk '{print$2}'");
+			$upnpip = get_ipaddr($config['minidlna']['if']);
+			if (is_file("/var/run/minidlna/upnp-av.scan") ) { $tabledata['pidstatus'] = 1; } else {
+			$presurl = "http://".$upnpip.":".$config['minidlna']['port'];
+			$file_headers = @get_headers($presurl);
+			if($file_headers[0] == 'HTTP/1.1 404 Not Found') {
+				$tabledata['pidstatus'] = false;
+				} else {
+					 $tabledata['pidstatus'] = exec ("ps ax | grep minidlna | grep -v grep | awk '{print$1}'");
+					} 
+				}
+	return $tabledata;
+}
 ?>
