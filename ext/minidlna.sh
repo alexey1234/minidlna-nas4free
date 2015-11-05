@@ -82,7 +82,7 @@ minidlna_prestart()
 {
 minidlna_mkconf
 /sbin/route add -net 239.0.0.0 -netmask 240.0.0.0 -interface ${_if} >/dev/null 2>&1
-install -d -o $minidlna_uid ${pidfile%/*} /var/db/minidlna
+#install -d -o $minidlna_uid ${pidfile%/*} /var/db/minidlna
 }
 
 minidlna_rescan()

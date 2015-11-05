@@ -53,7 +53,7 @@ if ($_POST) {
 			updatenotify_delete("cronjob");
 		}
 		
-		If (is_file ("/var/referer") ) { $referer=file_get_contents("/var/referer") ; unlink("/var/referer") header("Location: ".$referer );
+		If (is_file ("/var/referer") ) { $referer=file_get_contents("/var/referer") ; unlink("/var/referer"); header("Location: ".$referer );
 		exit; }
 	}
 }
