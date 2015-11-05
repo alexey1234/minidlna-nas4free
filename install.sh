@@ -10,7 +10,7 @@ STARTDIR=`pwd`
 REVISION=`cat /etc/prd.revision`
 INSTALLED=`/usr/local/bin/xml sel -t -i "count(//minidlna) > 0" -o "1" -b /conf/config.xml`
 # This first checks to see that the user has supplied an argument
-if [  -n $INSTALLED ]; then
+if [ 1 = ${INSTALLED} ]; then
 	MINIDLNA_HOME=`configxml_get "//${name}/homefolder"`
 else
 	if [ ! -z $1 ]; then
@@ -75,7 +75,7 @@ for file in $MINIDLNA_HOME/ext/minidlna/*cron*.php
 		fi
 	done	
 		# Store the install destination into the /tmp/minidlna.install in case updates
-	if [ ! -n $INSTALLED ]; then
+	if [ 1 = $INSTALLED ]; then
 		echo $MINIDLNA_HOME > /tmp/minidlna.install
 		mkdir ${MINIDLNA_HOME}/db
 		chown $minidlna_uid ${MINIDLNA_HOME}/db
