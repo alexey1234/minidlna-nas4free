@@ -79,7 +79,7 @@ if ( $connected ) {
 	$gitconfigfile = file_get_contents("https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/master/ext/minidlna/extensions_minidlna_config.php");
 	$git_ver = preg_split ( "/MINIDLNA_VERSION,/", $gitconfigfile);
 	$git_ver = 0 + $git_ver[1];
-	mwexec2 ( "fetch {$fetch_args} -o /tmp/minidlna_install.sh https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/master/install.php" , $garbage , $fetch_ret_val ) ;
+	mwexec2 ( "fetch {$fetch_args} -o /tmp/minidlna_install.sh https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/master/install.sh" , $garbage , $fetch_ret_val ) ;
 				if ( is_file("/tmp/minidlna_install.sh" ) ) {
 					// Fetch of install.sh succeeded
 					mwexec ("chmod a+x /tmp/thebrig_install.sh");
