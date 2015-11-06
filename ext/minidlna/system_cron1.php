@@ -54,7 +54,9 @@ if ($_POST) {
 		}
 		
 		If (is_file ("/var/referer") ) { $referer=file_get_contents("/var/referer") ; unlink("/var/referer"); header("Location: ".$referer );
-		exit; }
+			exit; 
+		} else { 
+		if(isset($_POST["referer"])) { header("Location: ".$_POST["referer"] ); exit; } }
 	}
 }
 

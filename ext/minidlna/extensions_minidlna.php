@@ -34,7 +34,10 @@ $pconfig['content'] = $config['minidlna']['content'];
 $pconfig['container'] = !empty($config['minidlna']['container']) ? $config['minidlna']['container'] : "warn";
 
 unset ($tmpconfig);
-$a_cronjob = &$config['cron']['job'];
+if (isset($config['cron']['job']) && is_array($config['cron']['job'])) {
+	$a_cronjob = &$config['cron']['job'];
+	} else { $config['cron'] = array();}
+
 if (FALSE !== ($cnid = array_search_ex("minidlna", $a_cronjob, "desc"))) {
 	$tmpconfig['enable'] = isset($a_cronjob[$cnid]['enable']);
 	$tmpconfig['uuid'] = $a_cronjob[$cnid]['uuid'];
