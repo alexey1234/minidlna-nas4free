@@ -84,6 +84,7 @@ unlink_if_exists ("/tmp/extensions_minidlna_config.php");
 $connected = @fsockopen("www.github.com", 80); 
 if ( $connected ) {
 	fclose($connected);
+	unset($gitconfigfile);
 	$gitconfigfile = file_get_contents("https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/master/ext/minidlna/extensions_minidlna_config.php");
 	$git_ver = preg_split ( "/MINIDLNA_VERSION,/", $gitconfigfile);
 	$git_ver = 0 + $git_ver[1];
