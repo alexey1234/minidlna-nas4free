@@ -64,7 +64,7 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 		      $file = str_replace($config['minidlna']['homefolder']."/ext/minidlna", "/usr/local/www", $file);
 		      if ( is_link( $file ) ) { unlink( $file ); } else {}	}
 		      mwexec ("rm -rf /usr/local/www/ext/minidlna");
-		      if ( is_link( "/usr/local/www/clear.png" ) ) { unlink(  "/usr/local/www/clear.png" );}
+		      if ( is_link( "/usr/local/www/status_scan.png" ) ) { unlink(  "/usr/local/www/status_scan.png" );}
 		    }
 	    
 //remove minidlna section from config.xml
@@ -79,10 +79,10 @@ if ( $connected ) {
 	$gitconfigfile = file_get_contents("https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/master/ext/minidlna/extensions_minidlna_config.php");
 	$git_ver = preg_split ( "/MINIDLNA_VERSION,/", $gitconfigfile);
 	$git_ver = 0 + $git_ver[1];
-	mwexec2 ( "fetch {$fetch_args} -o /tmp/minidlna_install.sh https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/master/install.sh" , $garbage , $fetch_ret_val ) ;
-				if ( is_file("/tmp/minidlna_install.sh" ) ) {
+	mwexec2 ( "fetch {$fetch_args} -o /tmp/install.sh https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/master/install.sh" , $garbage , $fetch_ret_val ) ;
+				if ( is_file("/tmp/install.sh" ) ) {
 					// Fetch of install.sh succeeded
-					mwexec ("chmod a+x /tmp/thebrig_install.sh");
+					mwexec ("chmod a+x /tmp/install.sh");
 				}	
 				else {					
 					$input_errors[]="There seems to be a networking issue. I can't reach GitHub to retrieve the file. <br />Please check <a href='/system.php'>DNS</a> and other <a href='/interfaces_lan.php'>networking settings</a>. <br />Alternatively, try it again to see if there was some transient network problem.";
@@ -207,7 +207,7 @@ $(document).ready(function(){
 				<div id="submit_x">
 					<input id="minidlna_update" name="minidlna_update" type="submit" class="formbtn" value="Update" onClick="return confirm('<?=_THEBRIG_INFO_MGR;?>');" /><br />
 				</div>
-				<input name="txtCommand" type="hidden" value="<?="sh /tmp/minidlna_install.sh {$config['minidlna']['homefolder']}";?>" />
+				<input name="txtCommand" type="hidden" value="<?="sh /tmp/install.sh {$config['minidlna']['homefolder']}";?>" />
 			</td>
 			
 
