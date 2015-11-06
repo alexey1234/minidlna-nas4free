@@ -48,7 +48,7 @@ tar -xf master.zip --exclude='.git*' --strip-components 1
 echo "Done!"
 rm master.zip
 # Copy downloaded version to the install destination
-cp -r -f ${STARTDIR}/install_stage/* ${MINIDLNA_HOME}/
+cp  -f -R ${STARTDIR}/install_stage/* ${MINIDLNA_HOME}/
 echo "Installing..."
 		# Create the symlinks/schema. We can't use thebrig_start since
 		# there is nothing for the brig in the config XML
