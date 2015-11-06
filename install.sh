@@ -4,19 +4,20 @@ exerr () { echo -e "$*" >&2 ; exit 1; }
 . /etc/configxml.subr
 . /etc/util.subr
 
+MYPATH=$1
 name='minidlna'
 minidlna_uid=${minidlna_uid-"dlna"}
 STARTDIR=`pwd`
 REVISION=`cat /etc/prd.revision`
 INSTALLED=`/usr/local/bin/xml sel -t -i "count(//minidlna) > 0" -o "1" -b /conf/config.xml`
 # This first checks to see that the user has supplied an argument
-if [ 1 = ${INSTALLED} ]; then
+if ["${INSTALLED}""${INSTALLED}" == "${INSTALLED}"]; then
 	MINIDLNA_HOME=`configxml_get "//${name}/homefolder"`
 else
-	if [ ! -z $1 ]; then
+	if [ ! -z $MYPATH ]; then
 			# The first argument will be the path that the user wants to be the root folder.
 			# If this directory does not exist, it is created
-			MINIDLNA_HOME=$1    
+			MINIDLNA_HOME=$MYPATH   
 				# This checks if the supplied argument is a directory. If it is not
 				# then we will try to create it
 			if [ ! -d $MINIDLNA_HOME ]; then
@@ -75,7 +76,7 @@ for file in $MINIDLNA_HOME/ext/minidlna/*cron*.php
 		fi
 	done	
 		# Store the install destination into the /tmp/minidlna.install in case updates
-	if [ 1 = $INSTALLED ]; then
+	if [ "${INSTALLED}""${INSTALLED}" == "${INSTALLED}" ]; then
 		echo $MINIDLNA_HOME > /tmp/minidlna.install
 		mkdir ${MINIDLNA_HOME}/db
 		chown $minidlna_uid ${MINIDLNA_HOME}/db
