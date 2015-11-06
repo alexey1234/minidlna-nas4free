@@ -35,12 +35,14 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 					
 					}	
 			$config['minidlna']['homefolder'] = $_POST['homefolder'];
+			$i = 0;
 			if ( is_array($config['rc']['postinit'] ) && is_array( $config['rc']['postinit']['cmd'] ) ) {
-		    	for ($i; $i < count($config['rc']['postinit']['cmd']);) {
-		    		if (preg_match('ext/minidlna/', $config['rc']['postinit']['cmd'][$i])) 	break;
+		    for ($i; $i < count($config['rc']['postinit']['cmd']);) {
+		    if (preg_match('ext/minidlna/', $config['rc']['postinit']['cmd'][$i])) 	break;
 				++$i;	} 	
-				$config['rc']['postinit']['cmd'][$i] = $config['minidlna']['homefolder']."/minidlna_start.php";	
-			}
+			$config['rc']['postinit']['cmd'][$i] = $config['minidlna']['homefolder']."/minidlna_start.php";	
+				}
+			
 			write_config();
 			unlink_if_exists("/tmp/minidlna.install");
 			header("Location: extensions_minidlna_config.php");
@@ -52,7 +54,7 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 	
 		if ( is_array($config['rc']['postinit'] ) && is_array( $config['rc']['postinit']['cmd'] ) ) {
 			for ($i = 0; $i < count($config['rc']['postinit']['cmd']);) {
-				if (preg_match('/minidlna/', $config['rc']['postinit']['cmd'][$i])) {	unset($config['rc']['postinit']['cmd'][$i]);} else{}
+				if (preg_match('/minidlna_start/', $config['rc']['postinit']['cmd'][$i])) {	unset($config['rc']['postinit']['cmd'][$i]);} else{}
 				++$i;
 			  }
 		    }

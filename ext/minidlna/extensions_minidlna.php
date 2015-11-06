@@ -28,10 +28,10 @@ $pconfig['if'] = !empty($config['minidlna']['if']) ? $config['minidlna']['if'] :
 $pconfig['port'] = !empty($config['minidlna']['port']) ? $config['minidlna']['port'] : "8200";
 $pconfig['notify_int'] = !empty($config['minidlna']['notify_int']) ? $config['minidlna']['notify_int'] : "60";
 $pconfig['strict'] = isset($config['minidlna']['strict']);
-
+$pconfig['loglevel'] = !empty($config['minidlna']['loglevel']) ? $config['minidlna']['loglevel'] : ".";
 $pconfig['tivo'] = isset($config['minidlna']['tivo']);
 $pconfig['content'] = $config['minidlna']['content'];
-$pconfig['loglevel'] = !empty($config['minidlna']['loglevel']) ? $config['minidlna']['loglevel'] : "warn";
+$pconfig['container'] = !empty($config['minidlna']['container']) ? $config['minidlna']['container'] : "warn";
 
 unset ($tmpconfig);
 $a_cronjob = &$config['cron']['job'];
@@ -84,7 +84,7 @@ if ($_POST) {
 		$config['minidlna']['tivo'] =  isset($_POST['tivo']) ? true : false;
 		$config['minidlna']['content'] = $_POST['content'];
 		$config['minidlna']['loglevel'] =  $_POST['loglevel'];
-
+		$config['minidlna']['container'] =  $_POST['container'];
 		
 		if (empty ($currentconfig['content'])) {
 		updatenotify_set("minidlna", UPDATENOTIFY_MODE_NEW, "Media database begin proccessing");
@@ -143,6 +143,7 @@ function enable_change(enable_change) {
 	document.iform.contentdata.disabled = endis;
 	document.iform.contentbrowsebtn.disabled = endis;
 	document.iform.loglevel.disabled = endis;
+	document.iform.container.disabled = endis;
 	document.iform.notify_int.disabled = endis;
 	document.iform.strict.disabled = endis;
 	document.iform.tivo.disabled = endis;
@@ -205,6 +206,8 @@ function enable_change(enable_change) {
 					</td>
 				</tr>
 				<?php html_minidlnabox("content", gettext("Content"), !empty($pconfig['content']) ? $pconfig['content'] : array(), gettext("Location of the files to share."), $g['media_path'], true);?>
+					<?php html_combobox("container", gettext("Container"), $pconfig['container'], array("." => "Standard", "B" =>"Browse Directory", "M" => "Music", "V" => "Video", "P" => "Pictures"), "Use different container as root of the tree", false, false, "" );?>
+
 					<?php html_checkbox ("strict", gettext("Strict DLNA"), !empty($pconfig['strict']) ? true : false, gettext(""), gettext("if checked will strictly adhere to DLNA standards which will allow server-side downscaling of very large JPEG images and may hurt JPEG serving performance on Sony DLNA products"), false);?>
 					<?php html_checkbox ("tivo", gettext("Enable TiVo"), !empty($pconfig['tivo']) ? true : false, gettext(""), gettext("Enable digital video recorder (DVR) developed and marketed by TiVo, Inc"), false);?>
 					<?php html_combobox("loglevel", gettext("Log level"), $pconfig['loglevel'], array("off" => gettext("Off"), "fatal" => gettext("fatal"), "error" => gettext("error"), "warn" => gettext("warning"), "info" => gettext("info"),"debug" => gettext("debug")), "", false, false, "" );?>
@@ -262,7 +265,7 @@ function enable_change(enable_change) {
 		
 	</table>
 	<div id="submit">
-					<input name="Submit" type="submit" class="formbtn" value="<?=gettext("Save");?>" onclick="onsubmit_content(); enable_change(true)" />
+					<input name="Submit" type="submit" class="formbtn" value="<?="Save";?>" onclick="onsubmit_content(); enable_change(true)" />
 					<input name="uuid" type="hidden" value="<?=$pconfig['uuid'];?>" />
 				</div>
 	<?php 	include("formend.inc");?>

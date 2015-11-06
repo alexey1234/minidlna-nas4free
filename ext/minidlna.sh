@@ -42,6 +42,7 @@ minidlna_mkconf()
 		_port=`configxml_get "//minidlna/port"`
 		_serial=`minidlnad -V | awk '{print$2}'`
 		_model=`cat /etc/prd.revision`
+		_container=`configxml_get "//minidlna/container"`
 		_notifyinterval=`configxml_get "//minidlna/notify_int"`
 		_loglevel=`configxml_get "//minidlna/loglevel"`
 		_ip_adress=`configxml_get "//interfaces/lan/ipaddr"`
@@ -58,11 +59,11 @@ model_number=${_model}
 notify_interval=${_notifyinterval}
 db_dir=${homefolder}/db
 log_dir=${homefolder}
+root_container=${_container}
 log_level=general,artwork,database,inotify,scanner,metadata,http,ssdp,tivo=${_loglevel}
 album_art_names=Cover.jpg/cover.jpg/AlbumArtSmall.jpg/albumartsmall.jpg/AlbumArt.jpg/albumart.jpg/Album.jpg/album.jpg/Folder.jpg/folder.jpg/Thumb.jpg/thumb.jpg
 inotify=no
 minissdpdsocket=/var/run/minissdpd.sock
-root_container=B
 presentation_url=http://${_ip_adress}:${_port}/index.php
 EOF
 
