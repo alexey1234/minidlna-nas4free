@@ -35,6 +35,12 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 					
 					}	
 			$config['minidlna']['homefolder'] = $_POST['homefolder'];
+			if ( is_array($config['rc']['postinit'] ) && is_array( $config['rc']['postinit']['cmd'] ) ) {
+		    	for ($i; $i < count($config['rc']['postinit']['cmd']);) {
+		    		if (preg_match('ext/minidlna/', $config['rc']['postinit']['cmd'][$i])) 	break;
+				++$i;	} 	
+				$config['rc']['postinit']['cmd'][$i] = $config['minidlna']['homefolder']."/minidlna_start.php";	
+			}
 			write_config();
 			unlink_if_exists("/tmp/minidlna.install");
 			header("Location: extensions_minidlna_config.php");
@@ -205,7 +211,7 @@ $(document).ready(function(){
 			<td width="78%" class="vtable">
 			<?=gettext("Click below to download and install the latest version.");?><br />
 				<div id="submit_x">
-					<input id="minidlna_update" name="minidlna_update" type="submit" class="formbtn" value="Update" onClick="return confirm('<?=_THEBRIG_INFO_MGR;?>');" /><br />
+					<input id="minidlna_update" name="minidlna_update" type="submit" class="formbtn" value="Update" onClick="return confirm('<?="Minidlna will be stopped, and the latest version will be downloaded. Are you sure you want to continue?";?>');" /><br />
 				</div>
 				<input name="txtCommand" type="hidden" value="<?="sh /tmp/install.sh {$config['minidlna']['homefolder']}";?>" />
 			</td>
