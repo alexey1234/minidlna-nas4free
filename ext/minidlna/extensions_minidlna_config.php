@@ -61,7 +61,11 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 		
 		if ( is_array($config['cron'] ) && is_array( $config['cron']['job'] )) {
 			 $index = array_search_ex("minidlna", $config['cron']['job'], "desc");
-			 if (false !== $index) { unset($config['cron']['job'][$index]); }
+			 if (count($config['cron']['job']) > 1) {
+				if (false !== $index) { unset($config['cron']['job'][$index]); }
+			 } else {
+				 if (false !== $index) { unset($config['cron']['job']); }
+			 }
 		    }
 
 		if ( is_link ( "/etc/rc.d/minidlna") ) { 	unlink("/etc/rc.d/minidlna"); }
