@@ -28,10 +28,11 @@ $pconfig['if'] = !empty($config['minidlna']['if']) ? $config['minidlna']['if'] :
 $pconfig['port'] = !empty($config['minidlna']['port']) ? $config['minidlna']['port'] : "8200";
 $pconfig['notify_int'] = !empty($config['minidlna']['notify_int']) ? $config['minidlna']['notify_int'] : "60";
 $pconfig['strict'] = isset($config['minidlna']['strict']);
-$pconfig['loglevel'] = !empty($config['minidlna']['loglevel']) ? $config['minidlna']['loglevel'] : ".";
+$pconfig['loglevel'] = !empty($config['minidlna']['loglevel']) ? $config['minidlna']['loglevel'] : "warn";
 $pconfig['tivo'] = isset($config['minidlna']['tivo']);
 $pconfig['content'] = $config['minidlna']['content'];
-$pconfig['container'] = !empty($config['minidlna']['container']) ? $config['minidlna']['container'] : "warn";
+$pconfig['container'] = !empty($config['minidlna']['container']) ? $config['minidlna']['container'] : "B";
+$pconfig['inotify'] = isset($config['minidlna']['inotify']);
 
 unset ($tmpconfig);
 if (isset($config['cron']['job']) && is_array($config['cron']['job'])) {
@@ -83,7 +84,7 @@ if ($_POST) {
 		$config['minidlna']['notify_int'] = $_POST['notify_int'];
 
 		$config['minidlna']['strict'] = isset($_POST['strict']) ? true : false;
-
+		$config['minidlna']['inotify'] = isset($_POST['inotify']) ? true : false;
 		$config['minidlna']['tivo'] =  isset($_POST['tivo']) ? true : false;
 		$config['minidlna']['content'] = $_POST['content'];
 		$config['minidlna']['loglevel'] =  $_POST['loglevel'];
@@ -177,7 +178,7 @@ function enable_change(enable_change) {
 				<?php if (updatenotify_exists("minidlna" )) print_config_change_box();?>
 				<table width="100%" border="0" cellpadding="6" cellspacing="0">
 				<?php html_titleline_checkbox("enable", gettext("Minidlna A/V Media Server"), !empty($pconfig['enable']) ? true : false, gettext("Enable"), "enable_change(false)" ); ?>
-				
+							
 					<?php html_inputbox("name", gettext("Name"), $pconfig['name'], gettext("UPnP friendly name."), true, 20);?>
 					<!--
 					<?php html_interfacecombobox("if", gettext("Interface"), $pconfig['if'], gettext("Interface to listen to."), true);?>
@@ -209,6 +210,8 @@ function enable_change(enable_change) {
 					</td>
 				</tr>
 				<?php html_minidlnabox("content", gettext("Content"), !empty($pconfig['content']) ? $pconfig['content'] : array(), gettext("Location of the files to share."), $g['media_path'], true);?>
+					<?php html_checkbox("inotify", gettext("Inotify"), !empty($pconfig['inotify']) ? true : false, gettext("Check this to enable inotify monitoring to automatically discover new files"), "" ); ?>
+		
 					<?php html_combobox("container", gettext("Container"), $pconfig['container'], array("." => "Standard", "B" =>"Browse Directory", "M" => "Music", "V" => "Video", "P" => "Pictures"), "Use different container as root of the tree", false, false, "" );?>
 
 					<?php html_checkbox ("strict", gettext("Strict DLNA"), !empty($pconfig['strict']) ? true : false,  "if checked will strictly adhere to DLNA standards which will allow server-side downscaling of very large JPEG images and may hurt JPEG serving performance on Sony DLNA products","", false);?>

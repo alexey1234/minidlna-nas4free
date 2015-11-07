@@ -62,7 +62,6 @@ log_dir=${homefolder}
 root_container=${_container}
 log_level=general,artwork,database,inotify,scanner,metadata,http,ssdp,tivo=${_loglevel}
 album_art_names=Cover.jpg/cover.jpg/AlbumArtSmall.jpg/albumartsmall.jpg/AlbumArt.jpg/albumart.jpg/Album.jpg/album.jpg/Folder.jpg/folder.jpg/Thumb.jpg/thumb.jpg
-inotify=no
 minissdpdsocket=/var/run/minissdpd.sock
 presentation_url=http://${_ip_adress}:${_port}/index.php
 EOF
@@ -76,7 +75,9 @@ EOF
 	/usr/local/bin/xml sel -t -m "//minidlna/content" \
 		-o "media_dir=" -v "." -n \
 		      ${configxml_file} | /usr/local/bin/xml unesc >> ${minidlna_config}
-
+  xml sel -t \
+		-i "count(//minidlna/inotify) > 0" -o "inotify=yes" --else -o "inotify=no" -b -n \
+		      ${configxml_file} | /usr/local/bin/xml unesc >> ${minidlna_config}
 }
 
 minidlna_prestart()
