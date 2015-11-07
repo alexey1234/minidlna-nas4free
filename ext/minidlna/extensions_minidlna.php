@@ -65,7 +65,7 @@ if (FALSE !== ($cnid = array_search_ex("minidlna", $a_cronjob, "desc"))) {
 
 
 if ($_POST) {
-	if (isset($_POST['Submit']) && $_POST['Submit'] === "Save") {
+	if (isset($_POST['Submit']) && $_POST['Submit'] === gettext("Save")) {
 
 	unset($input_errors);
 // Input validation.
@@ -108,7 +108,7 @@ if ($_POST) {
 		exit;
 		}
 	} // End POST save
-	if (isset($_POST['apply']) && $_POST['apply'] === "Apply changes") {
+	if (isset($_POST['apply']) && $_POST['apply'] === gettext("Apply changes")) {
 		
 			$retval =0;
 			if (!file_exists($d_sysrebootreqd_path)) {
@@ -211,8 +211,8 @@ function enable_change(enable_change) {
 				<?php html_minidlnabox("content", gettext("Content"), !empty($pconfig['content']) ? $pconfig['content'] : array(), gettext("Location of the files to share."), $g['media_path'], true);?>
 					<?php html_combobox("container", gettext("Container"), $pconfig['container'], array("." => "Standard", "B" =>"Browse Directory", "M" => "Music", "V" => "Video", "P" => "Pictures"), "Use different container as root of the tree", false, false, "" );?>
 
-					<?php html_checkbox ("strict", gettext("Strict DLNA"), !empty($pconfig['strict']) ? true : false, gettext(""), gettext("if checked will strictly adhere to DLNA standards which will allow server-side downscaling of very large JPEG images and may hurt JPEG serving performance on Sony DLNA products"), false);?>
-					<?php html_checkbox ("tivo", gettext("Enable TiVo"), !empty($pconfig['tivo']) ? true : false, gettext(""), gettext("Enable digital video recorder (DVR) developed and marketed by TiVo, Inc"), false);?>
+					<?php html_checkbox ("strict", gettext("Strict DLNA"), !empty($pconfig['strict']) ? true : false,  "if checked will strictly adhere to DLNA standards which will allow server-side downscaling of very large JPEG images and may hurt JPEG serving performance on Sony DLNA products","", false);?>
+					<?php html_checkbox ("tivo", gettext("Enable TiVo"), !empty($pconfig['tivo']) ? true : false,  "Enable digital video recorder (DVR) developed and marketed by TiVo, Inc", "",false);?>
 					<?php html_combobox("loglevel", gettext("Log level"), $pconfig['loglevel'], array("off" => gettext("Off"), "fatal" => gettext("fatal"), "error" => gettext("error"), "warn" => gettext("warning"), "info" => gettext("info"),"debug" => gettext("debug")), "", false, false, "" );?>
 					<?php //html_combobox("rescan", gettext("Rescan option"), $pconfig['rescan'], array("manual" => gettext("Manual"), "schedule" => gettext("Schedule")), "", false, false, "" );?>
 					<?php
