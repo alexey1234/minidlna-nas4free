@@ -66,7 +66,7 @@ if (FALSE !== ($cnid = array_search_ex("minidlna", $a_cronjob, "desc"))) {
 
 
 if ($_POST) {
-	if (isset($_POST['Submit']) && $_POST['Submit'] === gettext("Save")) {
+	if (isset($_POST['Submit']) && $_POST['Submit']) {
 
 	unset($input_errors);
 // Input validation.
@@ -109,7 +109,7 @@ if ($_POST) {
 		exit;
 		}
 	} // End POST save
-	if (isset($_POST['apply']) && $_POST['apply'] === gettext("Apply changes")) {
+	if (isset($_POST['apply']) && $_POST['apply']) {
 		
 			$retval =0;
 			if (!file_exists($d_sysrebootreqd_path)) {
