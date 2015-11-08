@@ -2,10 +2,10 @@
 /*
 extensions_minidlna_config.php
 */
-define (MINIDLNA_VERSION,2);
+define (MINIDLNA_VERSION,3);
 require("auth.inc");
 require("guiconfig.inc");
-require("ext/minidlna/function.php");
+
 
 $a_interface = get_interface_list();
 
@@ -45,7 +45,7 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 			
 			write_config();
 			unlink_if_exists("/tmp/minidlna.install");
-			header("Location: extensions_minidlna_config.php");
+			header("Location: services_minidlna.php");
 						exit;
 }	elseif (isset($_POST['submit1']) && ($_POST['submit1'] == "Uninstall")) {
 
@@ -58,21 +58,12 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 				++$i;
 			  }
 		    }
-		
-		if ( is_array($config['cron'] ) && is_array( $config['cron']['job'] )) {
-			 $index = array_search_ex("minidlna", $config['cron']['job'], "desc");
-			 if (count($config['cron']['job']) > 1) {
-				if (false !== $index) { unset($config['cron']['job'][$index]); }
-			 } else {
-				 if (false !== $index) { unset($config['cron']['job']); }
-			 }
-		    }
 
 		if ( is_link ( "/etc/rc.d/minidlna") ) { 	unlink("/etc/rc.d/minidlna"); }
 
 //remowe web pages
 		if (is_dir ("/usr/local/www/ext/minidlna")) {
-		      foreach ( glob( $config['minidlna']['homefolder']."/ext/minidlna/*.php" ) as $file ) {
+		      foreach ( glob( $config['minidlna']['homefolder']."/ext/minidlna/*" ) as $file ) {
 		      $file = str_replace($config['minidlna']['homefolder']."/ext/minidlna", "/usr/local/www", $file);
 		      if ( is_link( $file ) ) { unlink( $file ); } else {}	}
 		      mwexec ("rm -rf /usr/local/www/ext/minidlna");
@@ -89,10 +80,10 @@ $connected = @fsockopen("www.github.com", 80);
 if ( $connected ) {
 	fclose($connected);
 	unset($gitconfigfile);
-	$gitconfigfile = file_get_contents("https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/master/ext/minidlna/extensions_minidlna_config.php");
+	$gitconfigfile = file_get_contents("https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/simple/ext/minidlna/extensions_minidlna_config.php");
 	$git_ver = preg_split ( "/MINIDLNA_VERSION,/", $gitconfigfile);
 	$git_ver = 0 + $git_ver[1];
-	mwexec2 ( "fetch {$fetch_args} -o /tmp/install.sh https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/master/install.sh" , $garbage , $fetch_ret_val ) ;
+	mwexec2 ( "fetch {$fetch_args} -o /tmp/install.sh https://raw.githubusercontent.com/alexey1234/minidlna-nas4free/simple/install.sh" , $garbage , $fetch_ret_val ) ;
 				if ( is_file("/tmp/install.sh" ) ) {
 					// Fetch of install.sh succeeded
 					mwexec ("chmod a+x /tmp/install.sh");
@@ -116,24 +107,7 @@ out:
 <script type="text/javascript">//<![CDATA[
 
 $(document).ready(function(){
-	var gui = new GUI;
-	gui.recall(3000, 3000, 'extensions_minidlna_config.php', null, function(data) {
-			$('#server').text(data.server);
-			$('#version').text(data.version);
-		if (typeof(data.pidstatus) !== 'undefined') {
-			if ((data.pidstatus) > 2 ) {
-				$('#pidstatusimg').attr('src', 'status_enabled.png');
-				$('#pidstatusimg').attr('title', 'Runing wit PID=' + data.pidstatus);
-			    } else {
-					if  ((data.pidstatus) == 1 ) { 
-						$('#pidstatusimg').attr('src', 'status_scan.png');
-						$('#pidstatusimg').attr('title', 'Scan in progress');
-						} else { 
-				$('#pidstatusimg').attr('src', 'status_disabled.png');
-				$('#pidstatusimg').attr('title', 'Stopped');
-				}} }	
-		
-	});
+
 	$('#uninstall').change(function() {
 	
 		if($('#uninstall').is(":checked")) {
@@ -152,36 +126,13 @@ $(document).ready(function(){
 
 	<table width="100%" border="0" cellpadding="0" cellspacing="0">
 	<tr><td class="tabnavtbl">
-		<ul id="tabnav">
-			<li class="tabinact"><a href="extensions_minidlna.php"><span><?=gettext("Main")?></span></a></li>
-			<li class="tabinact"><a href="extensions_minidlna_log.php"><span><?=gettext("Log");?></span></a></li>
-			<li class="tabact"><a href="extensions_minidlna_config.php"><span><?=gettext("Maintanance");?></span></a></li>
-		</ul>
 	</td></tr>
 		<tr>
 			<td class="tabcont">
 				
 				  <?php if (!empty($input_errors)) print_input_errors($input_errors); ?>
 				<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<?php if ( false == is_file("/tmp/minidlna.install") ): ?>
-					<tr id='checksts_tr'>
-					<td width='22%' valign='top' class='vncell'><label for='name'><?php $minidlnavers = exec ("minidlna -V");  $titlelinevalue = "On board " . $minidlnavers; echo (gettext($titlelinevalue));?></label></td>
-					<td width='78%' class='vtable'>
-						<table class="formdata" width="100%" border="0" cellpadding="1" cellspacing="0">
-						 <tr>
-							<td width="30%" class="listhdrlr"><?=gettext("Server");?></td>
-							<td width="30%" class="listhdrlr"><?=gettext("Version");?></td>
-							<td width="30%" class="listhdrlr"><?=gettext("Server status");?></td>
-						</tr>
-						 <tr id="resultview">
-							<td  class="listr" name="server"  id="server"></td>
-							<td  class="listr" name="version" id="version"></td>
-							<td  class="listr" name="pidstatus" id="pidstatus"><img id="pidstatusimg" src="status_disabled.png" border="0" /></td>
-						</tr>
-						</table>
-					</td>	
-					</tr>
-					<?php endif; ?>
+
 				<tr><td colspan='2' class='list' height='6'></td></tr>
 				<tr id='homefolder_tr'>
 					<td width='22%' valign='top' class='vncell'><label for='homefolder'>Homefolder for extension</label></td>

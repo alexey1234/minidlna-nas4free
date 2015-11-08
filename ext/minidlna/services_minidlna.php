@@ -7,7 +7,8 @@ require("auth.inc");
 require("guiconfig.inc");
 require("services.inc");
 require("ext/minidlna/function.php");
-
+unset($currentconfig);
+$homechanged =0;
 if (is_file("/tmp/minidlna.install")) header("Location: extensions_minidlna_config.php");
 $a_interface = get_interface_list();
 
@@ -33,56 +34,32 @@ $pconfig['tivo'] = isset($config['minidlna']['tivo']);
 $pconfig['content'] = $config['minidlna']['content'];
 $pconfig['container'] = !empty($config['minidlna']['container']) ? $config['minidlna']['container'] : "B";
 $pconfig['inotify'] = isset($config['minidlna']['inotify']);
-
-unset ($tmpconfig);
-if (isset($config['cron']['job']) && is_array($config['cron']['job'])) {
-	$a_cronjob = &$config['cron']['job'];
-	} else { $config['cron'] = array();}
-
-if (FALSE !== ($cnid = array_search_ex("minidlna", $a_cronjob, "desc"))) {
-	$tmpconfig['enable'] = isset($a_cronjob[$cnid]['enable']);
-	$tmpconfig['uuid'] = $a_cronjob[$cnid]['uuid'];
-	$uuid = $a_cronjob[$cnid]['uuid'];
-	$tmpconfig['desc'] = $a_cronjob[$cnid]['desc'];
-	$tmpconfig['minute'] = $a_cronjob[$cnid]['minute'];
-	$tmpconfig['hour'] = $a_cronjob[$cnid]['hour'];
-	$tmpconfig['day'] = $a_cronjob[$cnid]['day'];
-	$tmpconfig['month'] = $a_cronjob[$cnid]['month'];
-	$tmpconfig['weekday'] = $a_cronjob[$cnid]['weekday'];
-	$tmpconfig['all_mins'] = $a_cronjob[$cnid]['all_mins'];
-	$tmpconfig['all_hours'] = $a_cronjob[$cnid]['all_hours'];
-	$tmpconfig['all_days'] = $a_cronjob[$cnid]['all_days'];
-	$tmpconfig['all_months'] = $a_cronjob[$cnid]['all_months'];
-	$tmpconfig['all_weekdays'] = $a_cronjob[$cnid]['all_weekdays'];
-	$tmpconfig['who'] = $a_cronjob[$cnid]['who'];
-	$tmpconfig['command'] = $a_cronjob[$cnid]['command'];
-	if ( $tmpconfig['all_mins'] == 0 ) $a_pconfig['schedule']['minutes'] = implode (',', $tmpconfig['minute'] ); else $a_pconfig['schedule']['minutes'] = "All";
-	if ( $tmpconfig['all_hours'] == 0 ) $a_pconfig['schedule']['hours'] = implode (',', $tmpconfig['hour'] ); else  $a_pconfig['schedule']['hours'] = "All";
-	if ( $tmpconfig['all_days'] == 0 ) $a_pconfig['schedule']['days'] = implode (',', $tmpconfig['day'] ); else $a_pconfig['schedule']['days'] = "All";
-	if ( $tmpconfig['all_months'] == 0 ) $a_pconfig['schedule']['months'] = implode (',', $tmpconfig['month'] ); else $a_pconfig['schedule']['months'] = "All";
-	if ( $tmpconfig['all_weekdays'] == 0 ) $a_pconfig['schedule']['weekdays'] = implode (',', $tmpconfig['weekday'] ); else $a_pconfig['schedule']['weekdays'] = "All";
-	
-} else { 	unset ($a_pconfig['schedule']); }
-
+$pconfig['home'] = $config['minidlna']['home'];
 
 if ($_POST) {
+	
 	if (isset($_POST['Submit']) && $_POST['Submit']) {
-
+file_put_contents("/tmp/postsubmit", serialize($_POST));
 	unset($input_errors);
 // Input validation.
-	if ( empty ($_POST['content'])) $input_errors[] = "Please define Media content folder";
+	if ( !is_array ($_POST['content'])) $input_errors[] = "Please define Media content folder";
+	if ( empty ($_POST['home']) || !is_dir ($_POST['home'])) $input_errors[] = "Location where the database with media contents not valid";
 	$pconfig = $_POST;
 
 	if (empty($input_errors)) {
 		if (isset ($config['minidlna']['content']) || is_array ($config['minidlna']['content'])) $currentconfig = $config['minidlna']; else unset($currentconfig);
-		
+		if ($config['minidlna']['home'] !== $_POST['home'] ) {
+			$homechanged = 1; 
+			chown($_POST['home'], "dlna");
+			chmod ($_POST['home'], 0755);
+			}
 		$config['minidlna']['enable'] = isset($_POST['enable']) ? true : false;
 		$config['minidlna']['name'] = $_POST['name'];
 		$config['minidlna']['if'] = $_POST['if'];
 		$config['minidlna']['port'] = $_POST['port'];
 
 		$config['minidlna']['notify_int'] = $_POST['notify_int'];
-
+		$config['minidlna']['home'] =  $_POST['home'];
 		$config['minidlna']['strict'] = isset($_POST['strict']) ? true : false;
 		$config['minidlna']['inotify'] = isset($_POST['inotify']) ? true : false;
 		$config['minidlna']['tivo'] =  isset($_POST['tivo']) ? true : false;
@@ -98,7 +75,7 @@ if ($_POST) {
 			sort ($a_content);
 			sort ($b_content);
 			$check_differences = array_merge (  array_diff_assoc ( $a_content ,$b_content ), array_diff_assoc ( $b_content ,  $a_content));
-			if (count ($check_differences) > 0 ) {
+			if (count ($check_differences) > 0 || $homechanged == 1) {
 				updatenotify_set("minidlna", UPDATENOTIFY_MODE_MODIFIED, "Minidlna begin rescan database");
 					} else {
 				updatenotify_set("minidlna", UPDATENOTIFY_MODE_DIRTY, "Minidlna reloaded");
@@ -110,7 +87,7 @@ if ($_POST) {
 		}
 	} // End POST save
 	if (isset($_POST['apply']) && $_POST['apply']) {
-		
+file_put_contents("/tmp/postapply", serialize($_POST));		
 			$retval =0;
 			if (!file_exists($d_sysrebootreqd_path)) {
 					
@@ -156,27 +133,25 @@ function enable_change(enable_change) {
 </script>
 
 <form action="extensions_minidlna.php" method="post" name="iform" id="iform">
-
+<?php if (true === isset($config['upnp']['enable'])) $savemsg = "Fuppes enabled. If you want to use Minidlna , disable Fuppes in first"; ?>
 	<table width="100%" border="0" cellpadding="0" cellspacing="0">
-	<tr><td class="tabnavtbl">
-		<ul id="tabnav">
-			<li class="tabact">
-				<a href="extensions_minidlna.php"><span><?=gettext("Main")?></span></a>
-			</li>
-			
-		    <li class="tabinact"><a href="extensions_minidlna_log.php"><span><?=gettext("Log");?></span></a></li>
-			<li class="tabinact">
-				<a href="extensions_minidlna_config.php"><span><?=gettext("Maintanance")?></span></a>
-			</li>
-		</ul>
-	</td></tr>
 		<tr>
 			<td class="tabcont">
+			
 				<?php if (!empty($input_errors)) print_input_errors($input_errors); ?>
 				<?php if (!empty($savemsg)) print_info_box($savemsg); ?>
-				
 				<?php if (updatenotify_exists("minidlna" )) print_config_change_box();?>
 				<table width="100%" border="0" cellpadding="6" cellspacing="0">
+
+				<tr><td class="tabnavtbl">
+				<ul id="tabnav">
+					<li class="tabinact"><a href="services_fuppes.php"><span><?=gettext("Fuppes")?></span></a></li>
+				    <li class="tabact"><a href="services_minidlna.php"><span><?=gettext("Minidlna");?></span></a></li>
+				</ul>
+				</td></tr>
+				
+				
+				<?php if (false === isset($config['upnp']['enable'])) : ?>
 				<?php html_titleline_checkbox("enable", gettext("Minidlna A/V Media Server"), !empty($pconfig['enable']) ? true : false, gettext("Enable"), "enable_change(false)" ); ?>
 							
 					<?php html_inputbox("name", gettext("Name"), $pconfig['name'], gettext("UPnP friendly name."), true, 20);?>
@@ -209,7 +184,9 @@ function enable_change(enable_change) {
 					</table>
 					</td>
 				</tr>
-				<?php html_minidlnabox("content", gettext("Content"), !empty($pconfig['content']) ? $pconfig['content'] : array(), gettext("Location of the files to share."), $g['media_path'], true);?>
+				<?php html_folderbox("content", gettext("Content"), !empty($pconfig['content']) ? $pconfig['content'] : array(), gettext("Location of the files to share."), $g['media_path'], true);?>
+					<?php html_filechooser("home", gettext("Database directory"), $pconfig['home'], gettext("Location where the database with media contents will be stored."), $g['media_path'], true, 67);?>
+
 					<?php html_checkbox("inotify", gettext("Inotify"), !empty($pconfig['inotify']) ? true : false, gettext("Check this to enable inotify monitoring to automatically discover new files"), "" ); ?>
 		
 					<?php html_combobox("container", gettext("Container"), $pconfig['container'], array("." => "Standard", "B" =>"Browse Directory", "M" => "Music", "V" => "Video", "P" => "Pictures"), "Use different container as root of the tree", false, false, "" );?>
@@ -217,8 +194,7 @@ function enable_change(enable_change) {
 					<?php html_checkbox ("strict", gettext("Strict DLNA"), !empty($pconfig['strict']) ? true : false,  "if checked will strictly adhere to DLNA standards which will allow server-side downscaling of very large JPEG images and may hurt JPEG serving performance on Sony DLNA products","", false);?>
 					<?php html_checkbox ("tivo", gettext("Enable TiVo"), !empty($pconfig['tivo']) ? true : false,  "Enable digital video recorder (DVR) developed and marketed by TiVo, Inc", "",false);?>
 					<?php html_combobox("loglevel", gettext("Log level"), $pconfig['loglevel'], array("off" => gettext("Off"), "fatal" => gettext("fatal"), "error" => gettext("error"), "warn" => gettext("warning"), "info" => gettext("info"),"debug" => gettext("debug")), "", false, false, "" );?>
-					<?php //html_combobox("rescan", gettext("Rescan option"), $pconfig['rescan'], array("manual" => gettext("Manual"), "schedule" => gettext("Schedule")), "", false, false, "" );?>
-					<?php
+							<?php
 					$if = get_ifname($pconfig['if']);
 					$ipaddr = get_ipaddr($if);
 					$url = htmlspecialchars("http://{$ipaddr}:{$pconfig['port']}");
@@ -226,54 +202,16 @@ function enable_change(enable_change) {
 					?>
 					<?php html_text("url", gettext("Presentation"), $text);?>
 					<tr><td colspan='2' class='list' height='6'></td></tr>
-				<tr id='shedrescan_tr'>
-					<td width='22%' valign='top' class='vncell'><label for='name'>Sheduled rescan Minidlna database</label></td>
-					<td width='78%' class='vtable'>
-						<table class="formdata" width="100%" border="0" cellpadding="1" cellspacing="0">
-							<tr>
-								<td class="listhdrr"><?=gettext("Minutes");?></td>
-								<td class="listhdrr"><?=gettext("Hours");?></td>
-								<td class="listhdrr"><?=gettext("Days");?></td>
-								<td class="listhdrr"><?=gettext("Months");?></td>
-								<td class="listhdrr"><?=gettext("Week days");?></td>
-								<td class="list"></td>
-							 </tr>
-							 <tr>
-							<?php  if ( is_array ( $a_pconfig['schedule'] ) ):?>
-								<td class="listr"><?=$a_pconfig['schedule']['minutes']?></td>
-								<td class="listr"><?=$a_pconfig['schedule']['hours']?></td>
-								<td class="listr"><?=$a_pconfig['schedule']['days']?></td>
-								<td class="listr"><?=$a_pconfig['schedule']['months']?></td>
-								<td class="listr"><?=$a_pconfig['schedule']['weekdays']?></td>
-						
-								<td valign="middle" nowrap="nowrap" class="list">
-					<a href="system_cron_edit1.php?uuid=<?=$uuid;?>"><img src="e.gif" title="<?=gettext("Edit job");?>" border="0" alt="<?=gettext("Edit job");?>" /></a>
-					<a href="system_cron1.php?act=del&amp;uuid=<?=$uuid;?>" onclick="return confirm('<?=gettext("Do you really want to delete this cron job?");?>')"><img src="x.gif" title="<?=gettext("Delete job");?>" border="0" alt="<?=gettext("Delete job");?>" /></a>
-								</td>
-							<?php else: ?>
-							<td class="list" colspan="5"></td>
-							<td class="list">
-								    
-								    <a href="system_cron_edit1.php?&amp;command=/etc/rc.d/minidlna rescan&amp;desc=minidlna"><img src="plus.gif" title="<?=gettext("Add job");?>" border="0" alt="<?=gettext("Add job");?>" /></a>
-								   
-								   
-								    </td>
-							<?php endif;?>
-							  </tr>
-				
-										</table>
-					</td>	
-				</tr>
-				
-				
-			</td>
-		</tr>
-		
+
+		</td>
+	</tr>	
 	</table>
 	<div id="submit">
 					<input name="Submit" type="submit" class="formbtn" value="<?="Save";?>" onclick="onsubmit_content(); enable_change(true)" />
 					<input name="uuid" type="hidden" value="<?=$pconfig['uuid'];?>" />
 				</div>
+				<?php endif; ?>
+				
 	<?php 	include("formend.inc");?>
 </form>
 <script type="text/javascript">

@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# $FreeBSD: tags/RELEASE_9_2_0/net/minidlna/files/minidlna.in 302141 2012-08-05 23:19:36Z dougb $
 #
 # PROVIDE: minidlna
 # REQUIRE: LOGIN
@@ -21,6 +20,7 @@ homefolder=`configxml_get "//${name}/homefolder"`
 minidlna_config_dir="/var/etc"
 scanner_indicator="/var/run/${name}/upnp-av.scan"
 minidlna_config=${minidlna_config_dir}/${name}.conf
+minidlna_logdir=${minidlna_logdir-"/var/log"}
 
 #Commands 
 command=/usr/local/sbin/${name}d
@@ -58,7 +58,7 @@ serial=${_serial}
 model_number=${_model}
 notify_interval=${_notifyinterval}
 db_dir=${homefolder}/db
-log_dir=${homefolder}
+log_dir=${minidlna_logdir}
 root_container=${_container}
 log_level=general,artwork,database,inotify,scanner,metadata,http,ssdp,tivo=${_loglevel}
 album_art_names=Cover.jpg/cover.jpg/AlbumArtSmall.jpg/albumartsmall.jpg/AlbumArt.jpg/albumart.jpg/Album.jpg/album.jpg/Folder.jpg/folder.jpg/Thumb.jpg/thumb.jpg

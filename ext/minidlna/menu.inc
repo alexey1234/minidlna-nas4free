@@ -1,1 +1,1 @@
-<a href="extensions_minidlna.php">minidlna</a>
+<a href="extensions_minidlna_config.php">minidlna</a>

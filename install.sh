@@ -8,7 +8,6 @@ exerr () { echo -e "$*" >&2 ; exit 1; }
 
 MYPATH=$1
 name='minidlna'
-minidlna_uid=${minidlna_uid-"dlna"}
 STARTDIR=`pwd`
 REVISION=`cat /etc/prd.revision`
 INSTALLED=`/usr/local/bin/xml sel -t -i "count(//minidlna) > 0" -o "1" -b /conf/config.xml`
@@ -37,16 +36,16 @@ fi
 # Make and move into the install staging folder
 mkdir -p ${STARTDIR}/install_stage || exerr "ERROR: Could not create staging directory!"
 cd ${STARTDIR}/install_stage || exerr "ERROR: Could not access staging directory!"
-# Fetch the master branch as a zip file
+# Fetch the simple branch as a zip file
 echo "Retrieving the most recent stable version of "${name}
-fetch https://github.com/alexey1234/minidlna-nas4free/archive/master.zip || exerr "ERROR: Could not write to install directory!"
+fetch https://github.com/alexey1234/minidlna-nas4free/archive/simple.zip || exerr "ERROR: Could not write to install directory!"
 
 # Extract the files we want, stripping the leading directory, and exclude
 # the git nonsense
 echo "Unpacking the tarball..."
-tar -xf master.zip --exclude='.git*' --strip-components 1
+tar -xf simple.zip --exclude='.git*' --strip-components 1
 echo "Done!"
-rm master.zip
+rm simple.zip
 # Copy downloaded version to the install destination
 rsync -r ${STARTDIR}/install_stage/* ${MINIDLNA_HOME}/
 echo "Installing..."
@@ -57,37 +56,29 @@ cp -f ${MINIDLNA_HOME}/ext/minidlna/menu.inc /usr/local/www/ext/minidlna/menu.in
 if [ ! -h "/etc/rc.d/minidlna" ]; then
 			ln -s  ${MINIDLNA_HOME}/ext/minidlna.sh /etc/rc.d/minidlna
 fi
-if [ ! -h "/usr/local/www/ext/minidlna/function.php" ]; then
-			ln -s ${MINIDLNA_HOME}/ext/minidlna/function.php /usr/local/www/ext/minidlna/function.php
+if [  -f "/usr/local/www/diag_log.inc" ]; then
+			rm /usr/local/www/diag_log.inc
+			ln -s ${MINIDLNA_HOME}/ext/minidlna/diag_log.inc /usr/local/www/ext/minidlna/diag_log.inc
 fi
-if [ ! -h "/usr/local/www/status_scan.png" ]; then
-			ln -s ${MINIDLNA_HOME}/ext/minidlna/status_scan.png /usr/local/www/status_scan.png
+if [ -f "/usr/local/www/services_fuppes.php" ]; then
+			rm /usr/local/www/services_fuppes.php
+			ln -s ${MINIDLNA_HOME}/ext/minidlna/services_fuppes.php /usr/local/www/services_fuppes.php
 fi
-cd /usr/local/www
-# For each of the php files in the extensions folder
-for file in ${MINIDLNA_HOME}/ext/minidlna/exten*.php
-	do
-		# Create link
-		if [ ! -h ${file##*/} ]; then
-			ln -s "$file" "${file##*/}"
-		fi
-	done
-for file in ${MINIDLNA_HOME}/ext/minidlna/*cron*.php
-	do
-		# Create link
-		if [ ! -h ${file##*/} ]; then
-			ln -s "$file" "${file##*/}"
-		fi
-	done	
+if [ ! -h "/usr/local/www/services_minidlna.php" ]; then
+			ln -s  ${MINIDLNA_HOME}/ext/minidlna/services_minidlna.php /usr/local/www/services_minidlna.php
+fi
+if [ ! -h "/usr/local/www/extensions_minidlna_config.php" ]; then
+			ln -s  ${MINIDLNA_HOME}/ext/minidlna/extensions_minidlna_config.php /usr/local/www/extensions_minidlna_config.php
+fi
+
 		# Store the install destination into the /tmp/minidlna.install in case updates
 	if [ "${INSTALLED}""${INSTALLED}" == "${INSTALLED}" ]; then
-		echo ${MINIDLNA_HOME} > /tmp/minidlna.install
-		mkdir ${MINIDLNA_HOME}/db
-		chown $minidlna_uid ${MINIDLNA_HOME}/db
+		echo ${MINIDLNA_HOME} > /tmp/minidlna.install		
 		echo "Congratulations! Extension was installed. Navigate to rudimentary config tab and push Save."
 	else
 		echo "Congratulations! Extension was upgraded."
 	fi
+cd $STARTDIR
 # Get rid of staged updates & cleanup
 rm -rf $STARTDIR/install_stage
 
