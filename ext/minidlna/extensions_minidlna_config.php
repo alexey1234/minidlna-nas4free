@@ -52,7 +52,10 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 			unlink_if_exists ( "/usr/local/www/services_fuppes.php");
 			symlink ( $config['minidlna']['homefolder']."/ext/minidlna/services_fuppes.php" , "/usr/local/www/services_fuppes.php" );
 			if ( !is_link ( "/etc/rc.d/minidlna") || !is_file ( "/etc/rc.d/minidlna")) { symlink ( $config['minidlna']['homefolder']."/ext/minidlna.sh" , "/etc/rc.d/minidlna" );}
-
+			unlink_if_exists ( "/usr/local/www/status_services.php");
+			symlink ( $config['minidlna']['homefolder']."/ext/minidlna/status_services.php" , "/usr/local/www/status_services.php" );
+			unlink_if_exists ( "/usr/local/www/fbegin.inc");
+			symlink ( $config['minidlna']['homefolder']."/ext/minidlna/fbegin.inc" , "/usr/local/www/fbegin.inc" );
 			header("Location: services_minidlna.php");
 						exit;
 }	elseif (isset($_POST['submit1']) && ($_POST['submit1'] == "Uninstall")) {

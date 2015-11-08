@@ -131,7 +131,7 @@ function enable_change(enable_change) {
 //-->
 </script>
 
-<form action="extensions_minidlna.php" method="post" name="iform" id="iform">
+<form action="services_minidlna.php" method="post" name="iform" id="iform">
 <?php if (true === isset($config['upnp']['enable'])) $savemsg = "Fuppes enabled. If you want to use Minidlna , disable Fuppes in first"; ?>
 	<table width="100%" border="0" cellpadding="0" cellspacing="0">
 		<tr>

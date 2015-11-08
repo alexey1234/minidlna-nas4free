@@ -13,7 +13,10 @@ symlink ( $config['minidlna']['homefolder']."/ext/minidlna/diag_log.inc" , "/usr
 if ( !is_link ( "/usr/local/www/extensions_minidlna_config.php")) { symlink ( $config['minidlna']['homefolder']."/ext/minidlna/extensions_minidlna_config.php" , "/usr/local/www/extensions_minidlna_config.php" );}
 unlink_if_exists ( "/usr/local/www/services_fuppes.php");
 symlink ( $config['minidlna']['homefolder']."/ext/minidlna/services_fuppes.php" , "/usr/local/www/services_fuppes.php" );
-
+unlink_if_exists ( "/usr/local/www/status_services.php");
+symlink ( $config['minidlna']['homefolder']."/ext/minidlna/status_services.php" , "/usr/local/www/status_services.php" );
+unlink_if_exists ( "/usr/local/www/fbegin.inc");
+symlink ( $config['minidlna']['homefolder']."/ext/minidlna/fbegin.inc" , "/usr/local/www/fbegin.inc" );
 if ( !is_link ( "/etc/rc.d/minidlna") || !is_file ( "/etc/rc.d/minidlna")) { symlink ( $config['minidlna']['homefolder']."/ext/minidlna.sh" , "/etc/rc.d/minidlna" );}
 if (isset($config['minidlna']['enable'])) {
 rc_update_rcconf("minidlna", "enable"); 
