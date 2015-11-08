@@ -10,9 +10,9 @@ MYPATH=$1
 name='minidlna'
 STARTDIR=`pwd`
 REVISION=`cat /etc/prd.revision`
-INSTALLED=`/usr/local/bin/xml sel -t -i "count(//minidlna) > 0" -o "1" -b /conf/config.xml`
+INSTALLED=`/usr/local/bin/xml sel -t -i "count(//minidlna) > 0" -o "1" --else -o "0" -b /conf/config.xml`
 # This first checks to see that the user has supplied an argument
-if [ "${INSTALLED}""${INSTALLED}" != "${INSTALLED}" ]; then
+if [ "0" != ${INSTALLED} ]; then
 	MINIDLNA_HOME=`configxml_get "//${name}/homefolder"`
 else
 	if [ ! -z ${MYPATH} ]; then
@@ -29,7 +29,6 @@ else
 	# We are here because the user did not specify an alternate location. Thus, we should use the 
 	# current directory as the root.
 		MINIDLNA_HOME=${STARTDIR} 
-		echo "${STARTDIR}"
 	fi
 fi
 
@@ -58,7 +57,7 @@ if [ ! -h "/usr/local/www/extensions_minidlna_config.php" ]; then
 			ln -s  ${MINIDLNA_HOME}/ext/minidlna/extensions_minidlna_config.php /usr/local/www/extensions_minidlna_config.php
 fi
 # Store the install destination into the /tmp/minidlna.install in case updates
-	if [ "${INSTALLED}""${INSTALLED}" == "${INSTALLED}" ]; then
+	if [ "1" != ${INSTALLED} ]; then
 		echo ${MINIDLNA_HOME} > /tmp/minidlna.install		
 		echo "Congratulations! Extension was installed. Navigate to rudimentary config tab and push Save."
 	else

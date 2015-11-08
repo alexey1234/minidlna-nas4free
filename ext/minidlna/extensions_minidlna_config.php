@@ -45,7 +45,14 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 			
 			write_config();
 			unlink_if_exists("/tmp/minidlna.install");
-			include_once($config['minidlna']['homefolder']."/minidlna_start.php");
+
+			if ( !is_link ( "/usr/local/www/services_minidlna.php")) { symlink ( $config['minidlna']['homefolder']."/ext/minidlna/services_minidlna.php" , "/usr/local/www/services_minidlna.php" ); }
+			unlink_if_exists ( "/usr/local/www/diag_log.inc");
+			symlink ( $config['minidlna']['homefolder']."/ext/minidlna/diag_log.inc" , "/usr/local/www/diag_log.inc" );
+			unlink_if_exists ( "/usr/local/www/services_fuppes.php");
+			symlink ( $config['minidlna']['homefolder']."/ext/minidlna/services_fuppes.php" , "/usr/local/www/services_fuppes.php" );
+			if ( !is_link ( "/etc/rc.d/minidlna") || !is_file ( "/etc/rc.d/minidlna")) { symlink ( $config['minidlna']['homefolder']."/ext/minidlna.sh" , "/etc/rc.d/minidlna" );}
+
 			header("Location: services_minidlna.php");
 						exit;
 }	elseif (isset($_POST['submit1']) && ($_POST['submit1'] == "Uninstall")) {
