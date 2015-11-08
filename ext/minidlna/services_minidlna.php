@@ -1,6 +1,6 @@
 <?php
 /*
-	extensions_minidlna.php
+	services_minidlna.php
 
 */
 require("auth.inc");
@@ -51,6 +51,7 @@ file_put_contents("/tmp/postsubmit", serialize($_POST));
 			$homechanged = 1; 
 			chown($_POST['home'], "dlna");
 			chmod ($_POST['home'], 0755);
+			unlink_if_exists ($_POST['home']."/files.db");
 			}
 		$config['minidlna']['enable'] = isset($_POST['enable']) ? true : false;
 		$config['minidlna']['name'] = $_POST['name'];
@@ -66,7 +67,7 @@ file_put_contents("/tmp/postsubmit", serialize($_POST));
 		$config['minidlna']['loglevel'] =  $_POST['loglevel'];
 		$config['minidlna']['container'] =  $_POST['container'];
 		
-		if (empty ($currentconfig['content'])) {
+		if (empty ($currentconfig['content']) || $homechanged == 1) {
 		updatenotify_set("minidlna", UPDATENOTIFY_MODE_NEW, "Media database begin proccessing");
 		}	else {
 			$a_content = $config['minidlna']['content'];
@@ -74,22 +75,21 @@ file_put_contents("/tmp/postsubmit", serialize($_POST));
 			sort ($a_content);
 			sort ($b_content);
 			$check_differences = array_merge (  array_diff_assoc ( $a_content ,$b_content ), array_diff_assoc ( $b_content ,  $a_content));
-			if (count ($check_differences) > 0 || $homechanged == 1) {
+			if (count ($check_differences) > 0 ) {
 				updatenotify_set("minidlna", UPDATENOTIFY_MODE_MODIFIED, "Minidlna begin rescan database");
 					} else {
 				updatenotify_set("minidlna", UPDATENOTIFY_MODE_DIRTY, "Minidlna reloaded");
 					}
 		}
 		write_config();
-		header("Location: extensions_minidlna.php");
+		header("Location: services_minidlna.php");
 		exit;
 		}
 	} // End POST save
 	if (isset($_POST['apply']) && $_POST['apply']) {
 file_put_contents("/tmp/postapply", serialize($_POST));		
 			$retval =0;
-			if (!file_exists($d_sysrebootreqd_path)) {
-					
+			if (!file_exists($d_sysrebootreqd_path)) {	
 					
 					config_lock();
 					$retval != rc_stop_service('minidlna') ;
