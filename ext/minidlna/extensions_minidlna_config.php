@@ -45,6 +45,7 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 			
 			write_config();
 			unlink_if_exists("/tmp/minidlna.install");
+			include_once($config['minidlna']['homefolder']."/minidlna_start.php");
 			header("Location: services_minidlna.php");
 						exit;
 }	elseif (isset($_POST['submit1']) && ($_POST['submit1'] == "Uninstall")) {
@@ -62,13 +63,8 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 		if ( is_link ( "/etc/rc.d/minidlna") ) { 	unlink("/etc/rc.d/minidlna"); }
 
 //remowe web pages
-		if (is_dir ("/usr/local/www/ext/minidlna")) {
-		      foreach ( glob( $config['minidlna']['homefolder']."/ext/minidlna/*" ) as $file ) {
-		      $file = str_replace($config['minidlna']['homefolder']."/ext/minidlna", "/usr/local/www", $file);
-		      if ( is_link( $file ) ) { unlink( $file ); } else {}	}
-		      mwexec ("rm -rf /usr/local/www/ext/minidlna");
-		      if ( is_link( "/usr/local/www/status_scan.png" ) ) { unlink(  "/usr/local/www/status_scan.png" );}
-		    }
+		if (is_dir ("/usr/local/www/ext/minidlna")) mwexec ("rm -rf /usr/local/www/ext/minidlna");
+		    
 	    
 //remove minidlna section from config.xml
 		if ( is_array($config['minidlna'] ) ) { unset( $config['minidlna'] ); write_config();}

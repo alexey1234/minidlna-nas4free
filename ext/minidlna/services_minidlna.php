@@ -6,7 +6,6 @@
 require("auth.inc");
 require("guiconfig.inc");
 require("services.inc");
-require("ext/minidlna/function.php");
 unset($currentconfig);
 $homechanged =0;
 if (is_file("/tmp/minidlna.install")) header("Location: extensions_minidlna_config.php");

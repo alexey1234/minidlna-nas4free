@@ -53,25 +53,11 @@ echo "Installing..."
 		# there is nothing for the brig in the config XML
 mkdir -p /usr/local/www/ext/minidlna
 cp -f ${MINIDLNA_HOME}/ext/minidlna/menu.inc /usr/local/www/ext/minidlna/menu.inc
-if [ ! -h "/etc/rc.d/minidlna" ]; then
-			ln -s  ${MINIDLNA_HOME}/ext/minidlna.sh /etc/rc.d/minidlna
-fi
-if [  -f "/usr/local/www/diag_log.inc" ]; then
-			rm /usr/local/www/diag_log.inc
-			ln -s ${MINIDLNA_HOME}/ext/minidlna/diag_log.inc /usr/local/www/ext/minidlna/diag_log.inc
-fi
-if [ -f "/usr/local/www/services_fuppes.php" ]; then
-			rm /usr/local/www/services_fuppes.php
-			ln -s ${MINIDLNA_HOME}/ext/minidlna/services_fuppes.php /usr/local/www/services_fuppes.php
-fi
-if [ ! -h "/usr/local/www/services_minidlna.php" ]; then
-			ln -s  ${MINIDLNA_HOME}/ext/minidlna/services_minidlna.php /usr/local/www/services_minidlna.php
-fi
+
 if [ ! -h "/usr/local/www/extensions_minidlna_config.php" ]; then
 			ln -s  ${MINIDLNA_HOME}/ext/minidlna/extensions_minidlna_config.php /usr/local/www/extensions_minidlna_config.php
 fi
-
-		# Store the install destination into the /tmp/minidlna.install in case updates
+# Store the install destination into the /tmp/minidlna.install in case updates
 	if [ "${INSTALLED}""${INSTALLED}" == "${INSTALLED}" ]; then
 		echo ${MINIDLNA_HOME} > /tmp/minidlna.install		
 		echo "Congratulations! Extension was installed. Navigate to rudimentary config tab and push Save."

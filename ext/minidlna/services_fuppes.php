@@ -196,7 +196,7 @@ function transcoding_change() {
 				
 				<ul id="tabnav">
 					<li class="tabact"><a href="services_fuppes.php"><span><?=gettext("Fuppes")?></span></a></li>
-				    <li class="tabinact"><a href="extensions_minidlna.php"><span><?=gettext("Minidlna");?></span></a></li>
+				    <li class="tabinact"><a href="services_minidlna.php"><span><?=gettext("Minidlna");?></span></a></li>
 				</ul>
 				</td></tr>
 				

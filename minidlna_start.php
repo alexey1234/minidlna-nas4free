@@ -8,8 +8,8 @@ if ( !is_dir ( '/usr/local/www/ext')) { mkdir("/usr/local/www/ext", 0755);  }
 if ( !is_dir ( '/usr/local/www/ext/minidlna')) { mkdir("/usr/local/www/ext/minidlna", 0755);  }
 copy($config['minidlna']['homefolder']."/ext/minidlna/menu.inc", "/usr/local/www/ext/minidlna/menu.inc");
 if ( !is_link ( "/usr/local/www/services_minidlna.php")) { symlink ( $config['minidlna']['homefolder']."/ext/minidlna/services_minidlna.php" , "/usr/local/www/services_minidlna.php" ); }
-unlink_if_exists ( "/usr/local/www/diag_log.php");
-symlink ( $config['minidlna']['homefolder']."/ext/minidlna/diag_log.php" , "/usr/local/www/diag_log.php" );
+unlink_if_exists ( "/usr/local/www/diag_log.inc");
+symlink ( $config['minidlna']['homefolder']."/ext/minidlna/diag_log.inc" , "/usr/local/www/diag_log.inc" );
 if ( !is_link ( "/usr/local/www/extensions_minidlna_config.php")) { symlink ( $config['minidlna']['homefolder']."/ext/minidlna/extensions_minidlna_config.php" , "/usr/local/www/extensions_minidlna_config.php" );}
 unlink_if_exists ( "/usr/local/www/services_fuppes.php");
 symlink ( $config['minidlna']['homefolder']."/ext/minidlna/services_fuppes.php" , "/usr/local/www/services_fuppes.php" );
