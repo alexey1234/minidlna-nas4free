@@ -56,6 +56,8 @@ if (isset ($_POST["submit1"]) && $_POST["submit1"] =="Save") {
 			symlink ( $config['minidlna']['homefolder']."/ext/minidlna/status_services.php" , "/usr/local/www/status_services.php" );
 			unlink_if_exists ( "/usr/local/www/fbegin.inc");
 			symlink ( $config['minidlna']['homefolder']."/ext/minidlna/fbegin.inc" , "/usr/local/www/fbegin.inc" );
+			unlink_if_exists ( "/etc/rc.d/mdnsresponder");
+			symlink ( $config['minidlna']['homefolder']."/ext/minidlna/mdnsresponder" , "/etc/rc.d/mdnsresponder" );
 			header("Location: services_minidlna.php");
 						exit;
 }	elseif (isset($_POST['submit1']) && ($_POST['submit1'] == "Uninstall")) {

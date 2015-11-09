@@ -18,6 +18,8 @@ symlink ( $config['minidlna']['homefolder']."/ext/minidlna/status_services.php" 
 unlink_if_exists ( "/usr/local/www/fbegin.inc");
 symlink ( $config['minidlna']['homefolder']."/ext/minidlna/fbegin.inc" , "/usr/local/www/fbegin.inc" );
 if ( !is_link ( "/etc/rc.d/minidlna") || !is_file ( "/etc/rc.d/minidlna")) { symlink ( $config['minidlna']['homefolder']."/ext/minidlna.sh" , "/etc/rc.d/minidlna" );}
+unlink_if_exists ( "/etc/rc.d/mdnsresponder");
+symlink ( $config['minidlna']['homefolder']."/ext/minidlna/mdnsresponder" , "/etc/rc.d/mdnsresponder" );
 if (isset($config['minidlna']['enable'])) {
 rc_update_rcconf("minidlna", "enable"); 
 rc_start_service("minidlna");
