@@ -130,33 +130,24 @@ function enable_change(enable_change) {
 }
 //-->
 </script>
-
-<form action="services_minidlna.php" method="post" name="iform" id="iform">
-<?php if (true === isset($config['upnp']['enable'])) $savemsg = "Fuppes enabled. If you want to use Minidlna , disable Fuppes in first"; ?>
-	<table width="100%" border="0" cellpadding="0" cellspacing="0">
-		<tr>
-			<td class="tabcont">
-			
-				<?php if (!empty($input_errors)) print_input_errors($input_errors); ?>
-				<?php if (!empty($savemsg)) print_info_box($savemsg); ?>
-				<?php if (updatenotify_exists("minidlna" )) print_config_change_box();?>
-				<table width="100%" border="0" cellpadding="6" cellspacing="0">
-
-				<tr><td class="tabnavtbl">
-				<ul id="tabnav">
-					<li class="tabinact"><a href="services_fuppes.php"><span><?=gettext("Fuppes")?></span></a></li>
-				    <li class="tabact"><a href="services_minidlna.php"><span><?=gettext("Minidlna");?></span></a></li>
-				</ul>
-				</td></tr>
-				
-				
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+	<tr><td class="tabnavtbl">
+		<ul id="tabnav">
+			<li class="tabinact"><a href="services_fuppes.php"><span><?=gettext("Fuppes")?></span></a></li>
+		    <li class="tabact"><a href="services_minidlna.php"><span><?=gettext("Minidlna");?></span></a></li>
+		</ul>
+	</td></tr>
+	<tr>
+		<td class="tabcont">
+			<?php if (true === isset($config['upnp']['enable'])) $savemsg = "Fuppes enabled. If you want to use Minidlna , disable Fuppes in first"; ?>
+			<?php if (!empty($input_errors)) print_input_errors($input_errors); ?>
+			<?php if (!empty($savemsg)) print_info_box($savemsg); ?>
+			<?php if (updatenotify_exists("minidlna" )) print_config_change_box();?>
+			<table width="100%" border="0" cellpadding="6" cellspacing="0">
+				<form action="services_minidlna.php" method="post" name="iform" id="iform">
 				<?php if (false === isset($config['upnp']['enable'])) : ?>
 				<?php html_titleline_checkbox("enable", gettext("Minidlna A/V Media Server"), !empty($pconfig['enable']) ? true : false, gettext("Enable"), "enable_change(false)" ); ?>
-							
-					<?php html_inputbox("name", gettext("Name"), $pconfig['name'], gettext("UPnP friendly name."), true, 20);?>
-					<!--
-					<?php html_interfacecombobox("if", gettext("Interface"), $pconfig['if'], gettext("Interface to listen to."), true);?>
-					-->
+				<?php html_inputbox("name", gettext("Name"), $pconfig['name'], gettext("UPnP friendly name."), true, 20);?>
 				<tr>
 					<td width="22%" valign="top" class="vncellreq"><?=gettext("Network settings");?></td>
 					<td width="78%" class="vtable">
@@ -170,49 +161,46 @@ function enable_change(enable_change) {
 							<?php endif;?>
 						<?php endforeach;?>
 								</select>
-					<br /><?=gettext("Interface to listen to.");?>
-					</td>
-					<td><input name='port' type='text' class='formfld' id='port' size='5' value="<?=$pconfig['port'];?>"  />
-					<br /><span class='vexpl'>Port to listen on. Only dynamic or private ports can be used (from 1025 through 65535). Default port is 8200.</span>
-					</td>
-					<td><input name='notify_int' type='text' class='formfld' id='notify_int' size='5' value="<?=$pconfig['notify_int'];?>"  />
-						<br /><span class='vexpl'>how often MiniDLNA broadcasts its availability on the network; default is every 60 seconds</span>
-					</td>
-					</tr>
-						
+								<br /><?=gettext("Interface to listen to.");?>
+							</td>
+							<td><input name='port' type='text' class='formfld' id='port' size='5' value="<?=$pconfig['port'];?>"  />
+							<br /><span class='vexpl'>Port to listen on. Only dynamic or private ports can be used (from 1025 through 65535). Default port is 8200.</span>
+							</td>
+							<td><input name='notify_int' type='text' class='formfld' id='notify_int' size='5' value="<?=$pconfig['notify_int'];?>"  />
+								<br /><span class='vexpl'>how often MiniDLNA broadcasts its availability on the network; default is every 60 seconds</span>
+							</td>
+						</tr>
 					</table>
 					</td>
 				</tr>
 				<?php html_folderbox("content", gettext("Content"), !empty($pconfig['content']) ? $pconfig['content'] : array(), gettext("Location of the files to share."), $g['media_path'], true);?>
-					<?php html_filechooser("home", gettext("Database directory"), $pconfig['home'], gettext("Location where the database with media contents will be stored."), $g['media_path'], true, 67);?>
-
-					<?php html_checkbox("inotify", gettext("Inotify"), !empty($pconfig['inotify']) ? true : false, gettext("Check this to enable inotify monitoring to automatically discover new files"), "" ); ?>
-		
-					<?php html_combobox("container", gettext("Container"), $pconfig['container'], array("." => "Standard", "B" =>"Browse Directory", "M" => "Music", "V" => "Video", "P" => "Pictures"), "Use different container as root of the tree", false, false, "" );?>
-
-					<?php html_checkbox ("strict", gettext("Strict DLNA"), !empty($pconfig['strict']) ? true : false,  "if checked will strictly adhere to DLNA standards which will allow server-side downscaling of very large JPEG images and may hurt JPEG serving performance on Sony DLNA products","", false);?>
-					<?php html_checkbox ("tivo", gettext("Enable TiVo"), !empty($pconfig['tivo']) ? true : false,  "Enable digital video recorder (DVR) developed and marketed by TiVo, Inc", "",false);?>
-					<?php html_combobox("loglevel", gettext("Log level"), $pconfig['loglevel'], array("off" => gettext("Off"), "fatal" => gettext("fatal"), "error" => gettext("error"), "warn" => gettext("warning"), "info" => gettext("info"),"debug" => gettext("debug")), "", false, false, "" );?>
-							<?php
+				<?php html_filechooser("home", gettext("Database directory"), $pconfig['home'], gettext("Location where the database with media contents will be stored."), $g['media_path'], true, 67);?>
+				<?php html_checkbox("inotify", gettext("Inotify"), !empty($pconfig['inotify']) ? true : false, gettext("Check this to enable inotify monitoring to automatically discover new files"), "" ); ?>
+				<?php html_combobox("container", gettext("Container"), $pconfig['container'], array("." => "Standard", "B" =>"Browse Directory", "M" => "Music", "V" => "Video", "P" => "Pictures"), "Use different container as root of the tree", false, false, "" );?>
+				<?php html_checkbox ("strict", gettext("Strict DLNA"), !empty($pconfig['strict']) ? true : false,  "if checked will strictly adhere to DLNA standards which will allow server-side downscaling of very large JPEG images and may hurt JPEG serving performance on Sony DLNA products","", false);?>
+				<?php html_checkbox ("tivo", gettext("Enable TiVo"), !empty($pconfig['tivo']) ? true : false,  "Enable digital video recorder (DVR) developed and marketed by TiVo, Inc", "",false);?>
+				<?php html_combobox("loglevel", gettext("Log level"), $pconfig['loglevel'], array("off" => gettext("Off"), "fatal" => gettext("fatal"), "error" => gettext("error"), "warn" => gettext("warning"), "info" => gettext("info"),"debug" => gettext("debug")), "", false, false, "" );?>
+				<?php
 					$if = get_ifname($pconfig['if']);
 					$ipaddr = get_ipaddr($if);
 					$url = htmlspecialchars("http://{$ipaddr}:{$pconfig['port']}");
 					$text = "<a href='{$url}' target='_blank'>{$url}</a>";
-					?>
-					<?php html_text("url", gettext("Presentation"), $text);?>
-					<tr><td colspan='2' class='list' height='6'></td></tr>
-
+				?>
+				<?php html_text("url", gettext("Presentation"), $text);?>
+				<tr><td colspan='2' class='list' height='6'></td></tr>
+				
+				<?php endif; ?>
+				<?php 	include("formend.inc");?>
+				</form>
+			</table>
+			<div id="submit">
+					<input name="Submit" type="submit" class="formbtn" value="<?="Save";?>" onclick="onsubmit_content(); enable_change(true)" />
+					<input name="uuid" type="hidden" value="<?=$pconfig['uuid'];?>" />
+			</div>
 		</td>
 	</tr>	
 	</table>
-	<div id="submit">
-					<input name="Submit" type="submit" class="formbtn" value="<?="Save";?>" onclick="onsubmit_content(); enable_change(true)" />
-					<input name="uuid" type="hidden" value="<?=$pconfig['uuid'];?>" />
-				</div>
-				<?php endif; ?>
-				
-	<?php 	include("formend.inc");?>
-</form>
+	
 <script type="text/javascript">
 <!--
 enable_change(false);
