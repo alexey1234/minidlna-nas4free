@@ -2,7 +2,7 @@
 /*
 extensions_minidlna_config.php
 */
-define (MINIDLNA_VERSION,3);
+define (MINIDLNA_VERSION,4);
 require("auth.inc");
 require("guiconfig.inc");
 
