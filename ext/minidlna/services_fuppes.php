@@ -181,26 +181,29 @@ function transcoding_change() {
 			break;
 	}
 }
+
 //-->
 </script>
 <form action="services_fuppes.php" method="post" name="iform" id="iform">
-<?php if (true === isset($config['minidlna']['enable'])) $savemsg = "Minidlba enabled. If you want to use Fuppes, disable minidlna in first"; ?>
 	<table width="100%" border="0" cellpadding="0" cellspacing="0">
+		<?php if (false === isset($config['upnp']['enable'])) : ?>
+	<tr id="tabnavtbl"><td class="tabnavtbl">
+		<ul id="tabnav">
+			<li class="tabact"><a href="services_fuppes.php"><span><?=gettext("Fuppes")?></span></a></li>
+		    <li class="tabinact"><a href="services_minidlna.php"><span><?=gettext("Minidlna");?></span></a></li>
+		</ul>
+	</td></tr>
+<?php endif; ?>
 		<tr>
 			<td class="tabcont">
+				<?php if (true === isset($config['minidlna']['enable'])) {
+					$savemsg = "Minidlna enabled. If you want to use Fuppes  , disable Minidlna in first"; 
+					if (!empty($savemsg)) print_info_box($savemsg);					
+					}else{?>
 				<?php if (!empty($input_errors)) print_input_errors($input_errors); ?>
 				<?php if (!empty($savemsg)) print_info_box($savemsg); ?>
 				<?php if (file_exists($d_upnpconfdirty_path)) print_config_change_box();?>
 				<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<tr><td class="tabnavtbl">
-				
-				<ul id="tabnav">
-					<li class="tabact"><a href="services_fuppes.php"><span><?=gettext("Fuppes")?></span></a></li>
-				    <li class="tabinact"><a href="services_minidlna.php"><span><?=gettext("Minidlna");?></span></a></li>
-				</ul>
-				</td></tr>
-				
-	<?php if (false === isset($config['minidlna']['enable'])) : ?>
 				<?php html_titleline_checkbox("enable", gettext("DLNA/UPnP Media Server"), !empty($pconfig['enable']) ? true : false, gettext("Enable"), "enable_change(false)");?>
 					<?php html_inputbox("name", gettext("Name"), $pconfig['name'], gettext("Give your media library a friendly name."), true, 35);?>
 					<!--
@@ -239,16 +242,15 @@ function transcoding_change() {
 				<div id="submit">
 					<input name="Submit" type="submit" class="formbtn" value="<?=gettext("Save and Restart");?>" onclick="onsubmit_content(); enable_change(true)" />
 				</div>
-				<?php endif; ?>
 			</td>
 		</tr>
 	</table>
 	<?php include("formend.inc");?>
 </form>
+<?php } ?>
 <script type="text/javascript">
 <!--
 profile_change();
-web_change();
 transcoding_change();
 enable_change(false);
 //-->

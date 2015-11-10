@@ -86,8 +86,7 @@ file_put_contents("/tmp/postsubmit", serialize($_POST));
 		exit;
 		}
 	} // End POST save
-	if (isset($_POST['apply']) && $_POST['apply']) {
-file_put_contents("/tmp/postapply", serialize($_POST));		
+	if (isset($_POST['apply']) && $_POST['apply']) {		
 			$retval =0;
 			if (!file_exists($d_sysrebootreqd_path)) {	
 					
@@ -130,22 +129,33 @@ function enable_change(enable_change) {
 }
 //-->
 </script>
+<form action="services_minidlna.php" method="post" name="iform" id="iform">
+
 <table width="100%" border="0" cellpadding="0" cellspacing="0">
-	<tr><td class="tabnavtbl">
+<?php if (false === isset($config['minidlna']['enable'])) : ?>
+	<tr id="tabnavtbl"><td class="tabnavtbl">
 		<ul id="tabnav">
 			<li class="tabinact"><a href="services_fuppes.php"><span><?=gettext("Fuppes")?></span></a></li>
 		    <li class="tabact"><a href="services_minidlna.php"><span><?=gettext("Minidlna");?></span></a></li>
 		</ul>
 	</td></tr>
+<?php endif; ?>
 	<tr>
 		<td class="tabcont">
-			<?php if (true === isset($config['upnp']['enable'])) $savemsg = "Fuppes enabled. If you want to use Minidlna , disable Fuppes in first"; ?>
+			<?php if (true === isset($config['upnp']['enable'])) {
+	$savemsg = "Fuppes enabled. If you want to use Minidlna , disable Fuppes in first"; 
+	if (!empty($savemsg)) print_info_box($savemsg);	
+}else{?>
+			
 			<?php if (!empty($input_errors)) print_input_errors($input_errors); ?>
 			<?php if (!empty($savemsg)) print_info_box($savemsg); ?>
 			<?php if (updatenotify_exists("minidlna" )) print_config_change_box();?>
+			
+			
+				
 			<table width="100%" border="0" cellpadding="6" cellspacing="0">
-				<form action="services_minidlna.php" method="post" name="iform" id="iform">
-				<?php if (false === isset($config['upnp']['enable'])) : ?>
+				
+				
 				<?php html_titleline_checkbox("enable", gettext("Minidlna A/V Media Server"), !empty($pconfig['enable']) ? true : false, gettext("Enable"), "enable_change(false)" ); ?>
 				<?php html_inputbox("name", gettext("Name"), $pconfig['name'], gettext("UPnP friendly name."), true, 20);?>
 				<tr>
@@ -189,21 +199,24 @@ function enable_change(enable_change) {
 				<?php html_text("url", gettext("Presentation"), $text);?>
 				<tr><td colspan='2' class='list' height='6'></td></tr>
 				
-				<?php endif; ?>
-				<?php 	include("formend.inc");?>
-				</form>
+				
 			</table>
 			<div id="submit">
 					<input name="Submit" type="submit" class="formbtn" value="<?="Save";?>" onclick="onsubmit_content(); enable_change(true)" />
 					<input name="uuid" type="hidden" value="<?=$pconfig['uuid'];?>" />
 			</div>
+			
 		</td>
 	</tr>	
-	</table>
 	
+		
+	</table>
+<?php 	include("formend.inc");?>
+</form>
+<?php } ?>
 <script type="text/javascript">
 <!--
-enable_change(false);
+enable_change();
 //-->
 </script>
 

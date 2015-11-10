@@ -101,12 +101,7 @@ if ( $connected ) {
 				}  // end of failed install.sh fetch	
 			
 		} // end of successful internet connectivity test
-	
-	
-if (is_ajax()) {
-	$upnpinfo = system_get_upnpinfo();
-	render_ajax($upnpinfo);
-}
+
 }
 
 out:
