@@ -117,7 +117,6 @@ if (isset($config['minidlna']['enable'])) {
 }else {
 	$menu['services']['menuitem'][] = array("desc" => gettext("DLNA/UPnP"), "link" => "services_fuppes.php", "visible" => TRUE);
 }
-$menu['services']['menuitem'][] = array("desc" => gettext("DLNA/UPnP"), "link" => "services_fuppes.php", "visible" => TRUE);
 $menu['services']['menuitem'][] = array("desc" => gettext("iTunes/DAAP"), "link" => "services_daap.php", "visible" => TRUE);
 $menu['services']['menuitem'][] = array("desc" => gettext("Dynamic DNS"), "link" => "services_dynamicdns.php", "visible" => TRUE);
 $menu['services']['menuitem'][] = array("desc" => gettext("SNMP"), "link" => "services_snmp.php", "visible" => TRUE);
