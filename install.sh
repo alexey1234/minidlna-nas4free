@@ -82,12 +82,14 @@ for file in ${MINIDLNA_HOME}/ext/minidlna/*cron*.php
 		# Store the install destination into the /tmp/minidlna.install in case updates
 	if [ "${INSTALLED}""${INSTALLED}" == "${INSTALLED}" ]; then
 		echo ${MINIDLNA_HOME} > /tmp/minidlna.install
-		mkdir ${MINIDLNA_HOME}/db
-		chown $minidlna_uid ${MINIDLNA_HOME}/db
+		mkdir ${MINIDLNA_HOME}/db{{
+	
 		echo "Congratulations! Extension was installed. Navigate to rudimentary config tab and push Save."
 	else
 		echo "Congratulations! Extension was upgraded."
 	fi
+chown ${minidlna_uid}:${minidlna_uid} ${MINIDLNA_HOME}/db
+chmod 755 ${MINIDLNA_HOME}/db
 # Get rid of staged updates & cleanup
 rm -rf $STARTDIR/install_stage
 
