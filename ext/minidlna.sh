@@ -1,5 +1,4 @@
 #!/bin/sh
-
 #
 # PROVIDE: minidlna
 # REQUIRE: LOGIN
@@ -22,6 +21,7 @@ scanner_indicator="/var/run/${name}/upnp-av.scan"
 minidlna_config=${minidlna_config_dir}/${name}.conf
 minidlna_logdir=${minidlna_logdir-"/var/log"}
 
+
 #Commands 
 command=/usr/local/sbin/${name}d
 mkconf_cmd="minidlna_mkconf"
@@ -36,7 +36,6 @@ command_args=" -P $pidfile -u $minidlna_uid -f $minidlna_config"
 
 minidlna_mkconf()
 {
-
 		_name=`configxml_get "//minidlna/name"`
 		_if=`configxml_get "//minidlna/if"`
 		_port=`configxml_get "//minidlna/port"`
@@ -49,7 +48,7 @@ minidlna_mkconf()
 		if [ "${_ip_adress}" = "dhcp" ]; then
 			_ip_adress=`get_ipaddr inet ${_if}`
 		fi
-
+		_home=`configxml_get "//minidlna/home"`
 	cat << EOF > ${minidlna_config}
 friendly_name=${_name}
 network_interface=${_if}
@@ -57,7 +56,6 @@ port=${_port}
 serial=${_serial}
 model_number=${_model}
 notify_interval=${_notifyinterval}
-db_dir=${homefolder}/db
 log_dir=${minidlna_logdir}
 root_container=${_container}
 log_level=general,artwork,database,inotify,scanner,metadata,http,ssdp,tivo=${_loglevel}
@@ -83,35 +81,26 @@ EOF
 minidlna_prestart()
 {
 minidlna_mkconf
-NETSTATCHECK=`netstat -rn | grep 224.0.0.0 |wc -m`
-if [ $NETSTATCHECK -gt 5 ]; 
-	then 
-	/sbin/route -q delete 224.0.0.0/4  >/dev/null 2>&1
-fi	
 /sbin/route add -net 239.0.0.0 -netmask 240.0.0.0 -interface ${_if} >/dev/null 2>&1
 #install -d -o $minidlna_uid ${pidfile%/*} /var/db/minidlna
 }
-minidlna_poststop()
-{
-	/sbin/route delete 224.0.0.0/4 >/dev/null 2>&1
-	rm -f $pidfile
-}
+
 minidlna_rescan()
 {
+_home=`configxml_get "//minidlna/home"`
 PID=`cat $pidfile`
 kill $PID
-/sbin/route delete 224.0.0.0/4 >/dev/null 2>&1
+minidlna_poststop
 rm -f $pidfile
-if [ -f ${homefolder}/db/files.db ]; then
-      rm -f ${homefolder}/db/files.db
+if [ -f ${_home}/files.db ]; then
+      rm -f ${_home}/files.db
 fi
-if [ -d ${homefolder}/db/art_cache ]; then
-      rm -fr ${homefolder}/db/art_cache
+if [ -d ${_home}/art_cache ]; then
+      rm -fr ${_home}/art_cache
 fi
 $command $command_args
-logger "rescan minidlna"
 sleep 5
-wait_on -t 1800 $scanner_indicator
+wait_on -t 3600 $scanner_indicator
 case $? in
 		0)
 		    logger "minidlna rescan timeout"
@@ -128,4 +117,9 @@ case $? in
 esac
 }
 
+minidlna_poststop()
+{
+	/sbin/route delete 224.0.0.0/4 >/dev/null 2>&1
+	rm -f $pidfile
+}
 run_rc_command $1
