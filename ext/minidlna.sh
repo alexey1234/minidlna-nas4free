@@ -83,15 +83,24 @@ EOF
 minidlna_prestart()
 {
 minidlna_mkconf
+NETSTATCHECK=`netstat -rn | grep 224.0.0.0 |wc -m`
+if [ $NETSTATCHECK -gt 5 ]; 
+	then 
+	/sbin/route -q delete 224.0.0.0/4  >/dev/null 2>&1
+fi	
 /sbin/route add -net 239.0.0.0 -netmask 240.0.0.0 -interface ${_if} >/dev/null 2>&1
 #install -d -o $minidlna_uid ${pidfile%/*} /var/db/minidlna
 }
-
+minidlna_poststop()
+{
+	/sbin/route delete 224.0.0.0/4 >/dev/null 2>&1
+	rm -f $pidfile
+}
 minidlna_rescan()
 {
 PID=`cat $pidfile`
 kill $PID
-minidlna_poststop
+/sbin/route delete 224.0.0.0/4 >/dev/null 2>&1
 rm -f $pidfile
 if [ -f ${homefolder}/db/files.db ]; then
       rm -f ${homefolder}/db/files.db
@@ -119,9 +128,4 @@ case $? in
 esac
 }
 
-minidlna_poststop()
-{
-	/sbin/route delete 224.0.0.0/4 >/dev/null 2>&1
-	rm -f $pidfile
-}
 run_rc_command $1
